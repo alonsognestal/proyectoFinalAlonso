@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">proyectoFinalAlonso</string>
+    <string name="action_settings">Settings</string>
+    <string name="noticias_titulo">Noticias</string>
+    <string name="podcast_titulo">Podcast</string>
+    <string name="radio_titulo">Radio en directo</string>
+    <string name="preferencias">Preferencias</string>
+    <string name="lista_emisoras">Lista de emisoras</string>
+
+
+
+</resources>
