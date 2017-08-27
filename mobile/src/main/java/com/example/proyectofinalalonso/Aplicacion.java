@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.provider.ContactsContract;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -17,29 +18,6 @@ import java.util.Vector;
  */
 
 public class Aplicacion extends Application {
-    /*private ArrayList<Genero> listaGeneros;
-    private DataAdapter adaptador;
-    private FirebaseStorage storage;
-    private static StorageReference storageRef;
-
-    @Override
-    public void onCreate() {
-        listaGeneros = Genero.ejemploGeneros();
-        adaptador = new DataAdapter (this, listaGeneros);
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReferenceFromUrl("gs://proyectoalonso-ff084.appspot.com");
-    }
-    public DataAdapter getAdaptador() {
-        return adaptador;
-    }
-    public ArrayList<Genero> getVectorLibros() {
-        return listaGeneros;
-    }
-
-    public static StorageReference getStorageReference()
-    {
-        return storageRef;
-    }*/
 
     static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private String ITEMS_CHILD_NAME = "generos";
@@ -50,9 +28,11 @@ public class Aplicacion extends Application {
     public void onCreate() {
         super.onCreate();
         Aplicacion.context = getApplicationContext();
+        FirebaseApp.initializeApp(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         database.setPersistenceEnabled(true);
         eventosReference = database.getReference(ITEMS_CHILD_NAME);
+        String s = eventosReference.getParent().toString();
     }
 
     public static Context getAppContext() {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,38 +13,31 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
-import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DataAdapter extends FirebaseRecyclerAdapter<Genero, DataAdapter.EventoViewHolder> {
+public class AdaptadorRadio extends FirebaseRecyclerAdapter<Genero, AdaptadorRadio.EventoViewHolder> {
     private LayoutInflater inflater;
-    private ArrayList<Genero> listaGeneros;
     private Context context;
 
     //Al adaptador, en vez de pasarle un vector o un arraylist le tengo que pasar la base de datos de Firebase.
-    public DataAdapter(int modelLayout, DatabaseReference ref) {
-        super(Genero.class, modelLayout, DataAdapter.EventoViewHolder.class,ref);
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.listaGeneros = listaGeneros;
-        this.context = context;
+    public AdaptadorRadio(int modelLayout, DatabaseReference ref) {
+        super(Genero.class, modelLayout, AdaptadorRadio.EventoViewHolder.class,ref);
     }
 
     //Creamos el viewHolder con las vistas de un elemento
     @Override
-    public DataAdapter.EventoViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = inflater.inflate(R.layout.content_radio, viewGroup, false);
+    public AdaptadorRadio.EventoViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        ViewGroup view = (ViewGroup) LayoutInflater.from(viewGroup.getContext()).inflate(mModelLayout, viewGroup, false);
         return new EventoViewHolder(view);
     }
 
     //Usamos como base el ViewHolder y lo personalizamos
     /*@Override
-    public void onBindViewHolder(DataAdapter.EventoViewHolder viewHolder, int i) {
+    public void onBindViewHolder(AdaptadorRadio.EventoViewHolder viewHolder, int i) {
 
         viewHolder.txtGenero.setText(listaGeneros.get(i).getTitulo());
         Picasso.with(context).load(listaGeneros.get(i).getUrl()).resize(240, 120).into(viewHolder.imgGenero);
@@ -54,15 +46,10 @@ public class DataAdapter extends FirebaseRecyclerAdapter<Genero, DataAdapter.Eve
     @Override
     protected void populateViewHolder(EventoViewHolder holder, Genero genero, int position) {
         String txtGenero = genero.getTitulo();
-
         holder.txtGenero.setText(txtGenero);
-        new DownloadImageTask((ImageView) holder.imgGenero).execute(genero.getTitulo());
+        new DownloadImageTask((ImageView) holder.imgGenero).execute(genero.getUrl());
     }
 
-    @Override
-    public int getItemCount() {
-        return listaGeneros.size();
-    }
 
     public class EventoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.txtGenero)
