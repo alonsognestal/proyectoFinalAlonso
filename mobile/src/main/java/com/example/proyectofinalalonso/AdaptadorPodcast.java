@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 
@@ -51,7 +52,8 @@ public class AdaptadorPodcast extends FirebaseRecyclerAdapter<Genero, AdaptadorP
     protected void populateViewHolder(EventoViewHolder holder, Genero genero, int position) {
         String txtGenero = genero.getTitulo();
         holder.txtGenero.setText(txtGenero);
-        new DownloadImageTask((ImageView) holder.imgGenero).execute(genero.getUrl());
+        //new DownloadImageTask((ImageView) holder.imgGenero).execute(genero.getUrl());
+        Glide.with(context).load(genero.getUrl()).into(holder.imgGenero);
     }
 
 
