@@ -53,7 +53,9 @@ public class PodcastActivity extends Fragment {
         }
         ButterKnife.bind(getActivity());
         Aplicacion app = (Aplicacion) getActivity().getApplicationContext();
+        //Obtengo los elementos de la referencia de la base de datos
         databaseReference = app.getItemsReference();
+        //Se los paso al adaptador para que los muestre
         AdaptadorRadio adapter = new AdaptadorRadio(R.layout.content_podcast,getAppContext(), databaseReference);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);

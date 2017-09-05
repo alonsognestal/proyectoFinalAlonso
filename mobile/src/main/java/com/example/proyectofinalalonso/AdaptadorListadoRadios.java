@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
@@ -34,13 +35,20 @@ public class AdaptadorListadoRadios extends FirebaseRecyclerAdapter<EmisoraRadio
 
     //Al adaptador, en vez de pasarle un vector o un arraylist le tengo que pasar la base de datos de Firebase.
     public AdaptadorListadoRadios(int modelLayout,Context context, DatabaseReference ref) {
-        super(EmisoraRadio.class, modelLayout, AdaptadorListadoRadios.EventoViewHolder.class, ref);
+        super(EmisoraRadio.class, modelLayout, AdaptadorListadoRadios.EventoViewHolder.class,ref);
         this.context = context;
     }
 
+    //Me creo otro constructor pasándole una query en vez de una databaseReference, así le llega solo el filtro que yo quiero (databaseReference.orderByChild("Categoria").equalTo(textoGenero))
+    public AdaptadorListadoRadios(int modelLayout,Context context, Query query) {
+        super(EmisoraRadio.class, modelLayout, AdaptadorListadoRadios.EventoViewHolder.class,query);
+        this.context = context;
+    }
+
+
     //Creamos el viewHolder con las vistas de un elemento
     @Override
-    public AdaptadorListadoRadios.EventoViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public EventoViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         ViewGroup view = (ViewGroup) LayoutInflater.from(viewGroup.getContext()).inflate(mModelLayout, viewGroup, false);
         view.setOnClickListener(onClickListener);
         return new EventoViewHolder(view);
@@ -48,6 +56,7 @@ public class AdaptadorListadoRadios extends FirebaseRecyclerAdapter<EmisoraRadio
 
     @Override
     protected void populateViewHolder(EventoViewHolder holder, EmisoraRadio emisoraRadio, int position) {
+
         String txtCategoria = emisoraRadio.getCategoria();
         holder.txtCategoria.setText(txtCategoria);
         String txtRadio = emisoraRadio.getId();

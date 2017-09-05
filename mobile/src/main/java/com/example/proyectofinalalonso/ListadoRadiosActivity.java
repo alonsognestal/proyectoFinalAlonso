@@ -47,16 +47,14 @@ public class ListadoRadiosActivity extends Activity {
         ButterKnife.bind(this);
         Aplicacion app = new Aplicacion(textoGenero);
         //app = (Aplicacion) getApplicationContext();
-        app.setItemsRadioReference(textoGenero);
-        query = app.obtenerReferenciaDatabase();
+        app.setGenero(textoGenero);
+        query = app.obtenerReferenciaDatabaseEmisoras();
         databaseReference = app.getItemsRadioReference();
-        AdaptadorListadoRadios adapter = new AdaptadorListadoRadios(R.layout.content_listado_radios,getApplicationContext(), databaseReference);
+        AdaptadorListadoRadios adapter = new AdaptadorListadoRadios(R.layout.content_listado_radios,getApplicationContext(), databaseReference.orderByChild("Categoria").equalTo(textoGenero));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
     }
-
-
 
     private boolean comprobarGooglePlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);

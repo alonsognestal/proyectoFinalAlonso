@@ -12,6 +12,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.firebase.ui.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -30,28 +31,34 @@ public class Aplicacion extends Application {
     private String ITEMS_CHILD_NAME = "generos";
     private String RADIOS = "emisoras";
     private String genero;
-    private String LOCALES = "Locales";
-    private String POP = "Pop";
-    private String NOTICIAS = "Noticias";
-    private String CLASICA = "Clasica";
-    private String LATINA = "Latina";
-    private String DANCE = "Dance";
-    private String OLDIES = "Oldies";
-    private String EXITOS = "Exitos";
-    private String ALTERNATIVA = "Alternativa";
-    private String ROCK = "Rock";
     private String nombreEmisora;
 
-    private static DatabaseReference generosReference;
-    private static DatabaseReference radiosReference;
+    private static DatabaseReference generosReference; //Referencia a la base de datos de géneros
+    private static DatabaseReference radiosReference; //Referencia a la base de datos de emisoras de radio
     private static Context context;
 
-    public Aplicacion()
-    {
+    public Aplicacion() {
     }
 
-    public Aplicacion(String genero)
-    {
+    public Aplicacion(String genero) {
+        this.genero = genero;
+    }
+
+    //Getters
+    public static DatabaseReference getItemsReference() {
+        return generosReference;
+    }
+
+    public static DatabaseReference getItemsRadioReference() {
+        return radiosReference;
+    }
+
+    public static Context getAppContext() {
+        return Aplicacion.context;
+    }
+
+    //Setters
+    public void setGenero(String genero) {
         this.genero = genero;
     }
 
@@ -63,32 +70,14 @@ public class Aplicacion extends Application {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         database.setPersistenceEnabled(true);
-
+        //Cargo la referencia de la BBDD de géneros
         generosReference = database.getReference(ITEMS_CHILD_NAME);
-
-
     }
 
-    public static Context getAppContext() {
-        return Aplicacion.context;
-    }
 
-    public static DatabaseReference getItemsReference() {
-        return generosReference;
-    }
-    public static DatabaseReference getItemsRadioReference() {
-        return radiosReference;
-    }
-
-    public void setItemsRadioReference(String genero)
-    {
-        this.genero = genero;
-    }
-
-    public Query obtenerReferenciaDatabase()
-    {
+    //Método público para obtener la referencia de la BBDD de las emisoras de radio
+    public Query obtenerReferenciaDatabaseEmisoras() {
         //final ArrayList<EmisoraRadio> lista = new ArrayList<EmisoraRadio>();
-
         FirebaseDatabase secondDatabase = FirebaseDatabase.getInstance();
         //Importante poner el keepSynced(True) para obtener siempre la última información en remoto
         secondDatabase.getReference(RADIOS).keepSynced(true);
@@ -100,11 +89,10 @@ public class Aplicacion extends Application {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
 
-                    // dataSnapshot is the "issue" node with all children with id 0
-                    for (DataSnapshot emisoras : dataSnapshot.getChildren()) {
-                        //Map<String,String> value = (Map<String, String)dataSnapshot.getValue();
-                      //lista.add(dataSnapshot.getValue(EmisoraRadio.class));
-
+                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        EmisoraRadio emisora = postSnapshot.getValue(EmisoraRadio.class);
+                        System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
 
                     }
                 }

@@ -33,28 +33,29 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-// get the reference of FrameLayout and TabLayout
+        //Obtengo la referencia del FrameLayout donde voy a meter cada uno de los 3 fragmentos y del tablayout
         simpleFrameLayout = (FrameLayout) findViewById(R.id.simpleFrameLayout);
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
-// Create a new Tab named "First"
+
+        //Añado las 3 pestañas que me interesan
         final TabLayout.Tab firstTab = tabLayout.newTab();
-        firstTab.setText("NOTICIAS"); // set the Text for the first Tab
-        tabLayout.addTab(firstTab); // add  the tab at in the TabLayout
-// Create a new Tab named "Second"
+        firstTab.setText("NOTICIAS");
+        tabLayout.addTab(firstTab);
+
         TabLayout.Tab secondTab = tabLayout.newTab();
-        secondTab.setText("PODCAST"); // set the Text for the second Tab
-        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
-// Create a new Tab named "Third"
+        secondTab.setText("PODCAST");
+        tabLayout.addTab(secondTab);
+
         TabLayout.Tab thirdTab = tabLayout.newTab();
-        thirdTab.setText("RADIO EN DIRECTO"); // set the Text for the first Tab
-        tabLayout.addTab(thirdTab); // add  the tab at in the TabLayout
+        thirdTab.setText("RADIO EN DIRECTO");
+        tabLayout.addTab(thirdTab);
 
 
 // perform setOnTabSelectedListener event on TabLayout
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-// get the current selected tab's position and replace the fragment accordingly
+            //Obtengo la posición de la pestaña pulsada y reemplazo el fragment con el que yo quiera
                 Fragment fragment = null;
                 switch (tab.getPosition()) {
                     case 0:

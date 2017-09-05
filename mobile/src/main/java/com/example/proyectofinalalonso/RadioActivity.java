@@ -35,9 +35,6 @@ public class RadioActivity extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_radio);
-
-
     }
 
     @Override
@@ -52,14 +49,15 @@ public class RadioActivity extends Fragment {
         }
         ButterKnife.bind(getActivity());
         Aplicacion app = (Aplicacion) getActivity().getApplicationContext();
+        //Obtengo los elementos de la referencia de la base de datos
         databaseReference = app.getItemsReference();
+        //Se los paso al adaptador para que los muestre
         AdaptadorRadio adapter = new AdaptadorRadio(R.layout.content_radio,getAppContext(), databaseReference);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
         return rootView;
     }
-
 
     private boolean comprobarGooglePlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
