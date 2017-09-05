@@ -16,6 +16,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -85,19 +87,23 @@ public class Aplicacion extends Application {
 
     public Query obtenerReferenciaDatabase()
     {
+        //final ArrayList<EmisoraRadio> lista = new ArrayList<EmisoraRadio>();
+
         FirebaseDatabase secondDatabase = FirebaseDatabase.getInstance();
         //Importante poner el keepSynced(True) para obtener siempre la última información en remoto
         secondDatabase.getReference(RADIOS).keepSynced(true);
         radiosReference = secondDatabase.getReference(RADIOS);
         Query query = radiosReference.orderByChild("Categoria").equalTo(genero);
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.getRef();
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+
                     // dataSnapshot is the "issue" node with all children with id 0
                     for (DataSnapshot emisoras : dataSnapshot.getChildren()) {
-                      dataSnapshot.getValue(EmisoraRadio.class);
+                        //Map<String,String> value = (Map<String, String)dataSnapshot.getValue();
+                      //lista.add(dataSnapshot.getValue(EmisoraRadio.class));
 
 
                     }
