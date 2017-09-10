@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="30dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    android:paddingTop="30dp"
+    tools:context="com.example.proyectofinalalonso.RadioActivity">
+    <TextView
+        android:id="@+id/txtTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="Título"
+        android:textAlignment="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/white" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_below="@id/txtTitulo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:scaleType="fitCenter" />
+    <LinearLayout
+        android:id="@+id/controlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_margin="5dp"
+        android:gravity="center_horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/volumeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/volume_background"
+            android:gravity="center_vertical"
+            android:padding="3dp" >
+
+            <ImageView
+                android:id="@+id/volumeImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/iconVolumeDescription"
+                android:src="@android:drawable/ic_lock_silent_mode_off" />
+
+            <SeekBar
+                android:id="@+id/volumeSeekBar"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="36dp"
+                android:indeterminate="false" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/volume_background"
+            android:padding="3dp" >
+
+            <ToggleButton
+                android:id="@+id/playPauseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/start_pause_button_selector"
+                android:contentDescription="@string/clear"
+                android:minHeight="64dp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

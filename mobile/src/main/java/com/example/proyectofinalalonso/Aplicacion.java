@@ -83,7 +83,7 @@ public class Aplicacion extends Application {
         secondDatabase.getReference(RADIOS).keepSynced(true);
         radiosReference = secondDatabase.getReference(RADIOS);
         Query query = radiosReference.orderByChild("Categoria").equalTo(genero);
-        query.getRef();
+
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

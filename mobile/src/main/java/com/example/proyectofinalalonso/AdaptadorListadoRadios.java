@@ -1,9 +1,11 @@
 package com.example.proyectofinalalonso;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,7 +89,21 @@ public class AdaptadorListadoRadios extends FirebaseRecyclerAdapter<EmisoraRadio
 
         @Override
         public void onClick(View v) {
+            //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
+            int position = getAdapterPosition();
+            EmisoraRadio currentItem = getItem(position);
+            Intent intent = new Intent(context, DetallesEmisoraRadioActivity.class);
+            Bundle extras = new Bundle();
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            extras.putString("idEmisora", currentItem.getId());
+            extras.putString("imagen", currentItem.getUrlImagen());
+            extras.putString("URLAudio", currentItem.getUrlAudio());
+            extras.putString("rss", currentItem.getId());
+            extras.putString("genero", currentItem.getCategoria());
 
+            intent.putExtras(extras);
+            //intent.putExtra("imagenGenero", currentItem.getUrl());
+            context.startActivity(intent);
         }
     }
 

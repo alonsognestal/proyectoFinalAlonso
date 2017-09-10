@@ -6,7 +6,10 @@
     <string name="radio_titulo">Radio en directo</string>
     <string name="preferencias">Preferencias</string>
     <string name="lista_emisoras">Lista de emisoras</string>
-
+    <string name="clear"></string>
+    <string name="iconVolumeDescription">Volumen</string>
+    <string name="drawer_open">navigation drawer abierto</string>
+    <string name="drawer_close">navigation drawer cerrado</string>
 
 
 </resources>
