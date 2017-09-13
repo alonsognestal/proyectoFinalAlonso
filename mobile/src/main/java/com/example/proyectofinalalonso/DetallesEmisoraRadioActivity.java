@@ -1,6 +1,7 @@
 package com.example.proyectofinalalonso;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,13 +11,20 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -26,17 +34,28 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.bumptech.glide.Glide;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import static android.R.attr.bitmap;
+import static android.R.attr.category;
 
 /**
  * Created by Alonso on 07/09/2017.
  */
 
-public class DetallesEmisoraRadioActivity extends Activity implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
+public class DetallesEmisoraRadioActivity extends AppCompatActivity implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
 
     MediaController mediaController;
     MediaPlayer mediaPlayer;
@@ -44,6 +63,14 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
     ImageView imgView;
     boolean isPlay = false;
     ToggleButton buttonStreaming;
+    String URLAudio = "";
+    private static final int STATE_PAUSED = 0;
+    private static final int STATE_PLAYING = 1;
+
+    private int mCurrentState;
+
+    private MediaBrowserCompat mMediaBrowserCompat;
+    private MediaControllerCompat mMediaControllerCompat;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +78,7 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
         Intent intent = getIntent();
         String idEmisora = intent.getStringExtra("idEmisora");
         String imagen = intent.getStringExtra("imagen");
-        String URLAudio = intent.getStringExtra("URLAudio");
+        URLAudio = intent.getStringExtra("URLAudio");
         String rss = intent.getStringExtra("rss");
         String genero = intent.getStringExtra("genero");
 
@@ -67,6 +94,25 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
         // Inicializando el volumen
         initializeVolume();
 
+        //Obtener feed
+        ArrayList<String> headlines = new ArrayList<>();
+
+        ObtenerFeed getXML = new ObtenerFeed();
+        getXML.execute();
+        headlines = getXML.heads();
+
+
+        // Binding data
+        ArrayAdapter adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, headlines);
+
+        //setListAdapter(adapter);
+
+
+        mMediaBrowserCompat = new MediaBrowserCompat(this, new ComponentName(this, BackgroundAudioService.class),
+        mMediaBrowserCompatConnectionCallback, getIntent().getExtras());
+
+        mMediaBrowserCompat.connect();
 
         buttonStreaming = (ToggleButton) findViewById(R.id.playPauseButton);
         buttonStreaming.setEnabled(true);
@@ -85,6 +131,16 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
                 } else {
                     stopPlaying();
                 }
+                /*if( mCurrentState == STATE_PAUSED ) {
+                    getSupportMediaController().getTransportControls().play();
+                    mCurrentState = STATE_PLAYING;
+                } else {
+                    if( getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ) {
+                        getSupportMediaController().getTransportControls().pause();
+                    }
+
+                    mCurrentState = STATE_PAUSED;
+                }*/
             }
         });
 
@@ -196,7 +252,7 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
 
     @Override public void onStop() {
         //TODO: Cuando entra aquí el mediaController es nulo :S
-        mediaController.hide();
+        //mediaController.hide();
         try {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -266,4 +322,45 @@ public class DetallesEmisoraRadioActivity extends Activity implements View.OnTou
     public int getAudioSessionId() {
         return 0;
     }
+
+    private MediaBrowserCompat.ConnectionCallback mMediaBrowserCompatConnectionCallback = new MediaBrowserCompat.ConnectionCallback() {
+
+        @Override
+        public void onConnected() {
+            super.onConnected();
+            try {
+                final Uri audio = Uri.parse(URLAudio);
+                mMediaControllerCompat = new MediaControllerCompat(DetallesEmisoraRadioActivity.this, mMediaBrowserCompat.getSessionToken());
+                mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
+                setSupportMediaController(mMediaControllerCompat);
+                getSupportMediaController().getTransportControls().playFromUri(audio, null);
+
+            } catch( RemoteException e ) {
+
+            }
+        }
+    };
+
+    private MediaControllerCompat.Callback mMediaControllerCompatCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            super.onPlaybackStateChanged(state);
+            if( state == null ) {
+                return;
+            }
+
+            switch( state.getState() ) {
+                case PlaybackStateCompat.STATE_PLAYING: {
+                    mCurrentState = STATE_PLAYING;
+                    break;
+                }
+                case PlaybackStateCompat.STATE_PAUSED: {
+                    mCurrentState = STATE_PAUSED;
+                    break;
+                }
+            }
+        }
+    };
+
 }

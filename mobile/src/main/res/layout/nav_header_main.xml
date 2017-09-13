@@ -10,17 +10,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+    <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:paddingTop="0dp"
         android:src="@android:drawable/sym_def_app_icon" />
 
     <TextView
+        android:id="@+id/txtName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="16dp"
+        android:paddingTop="0dp"
         android:text="Proyecto Emisoras de radio"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -28,5 +29,5 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Alonso González Nestal" />
+        android:text="PRUEBA" />
 </LinearLayout>

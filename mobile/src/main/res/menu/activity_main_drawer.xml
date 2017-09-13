@@ -36,6 +36,9 @@
                 android:id="@+id/nav_compartir"
                 android:icon="@android:drawable/ic_menu_share"
                 android:title="Compartir" />
+            <item android:id="@+id/nav_signout"
+                android:icon="@android:drawable/ic_menu_close_clear_cancel"
+                android:title="@string/sign_out" />
         </menu>
     </item>
 </menu>

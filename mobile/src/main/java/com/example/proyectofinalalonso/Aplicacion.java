@@ -2,9 +2,15 @@ package com.example.proyectofinalalonso;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.provider.ContactsContract;
+import android.util.LruCache;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +42,9 @@ public class Aplicacion extends Application {
     private static DatabaseReference generosReference; //Referencia a la base de datos de géneros
     private static DatabaseReference radiosReference; //Referencia a la base de datos de emisoras de radio
     private static Context context;
+    private FirebaseAuth auth;
+    private static RequestQueue colaPeticiones;
+    private static ImageLoader lectorImagenes;
 
     public Aplicacion() {
     }
@@ -57,6 +66,14 @@ public class Aplicacion extends Application {
         return Aplicacion.context;
     }
 
+    public FirebaseAuth getAuth() {
+        return auth;
+    }
+
+    public static ImageLoader getLectorImagenes() {
+        return lectorImagenes;
+    }
+
     //Setters
     public void setGenero(String genero) {
         this.genero = genero;
@@ -68,6 +85,19 @@ public class Aplicacion extends Application {
         Aplicacion.context = getApplicationContext();
         FirebaseApp.initializeApp(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
+        colaPeticiones = Volley.newRequestQueue(this);
+        lectorImagenes = new ImageLoader(colaPeticiones, new ImageLoader.ImageCache() {
+            private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(10);
+
+            public void putBitmap(String url, Bitmap bitmap) {
+                cache.put(url, bitmap);
+            }
+
+            public Bitmap getBitmap(String url) {
+                return cache.get(url);
+            }
+        });
 
         database.setPersistenceEnabled(true);
         //Cargo la referencia de la BBDD de géneros
@@ -103,7 +133,7 @@ public class Aplicacion extends Application {
 
             }
         });
-        secondDatabase.getReference().setValue(ServerValue.TIMESTAMP);
+        //secondDatabase.getReference().setValue(ServerValue.TIMESTAMP);
         return query;
 
     }
