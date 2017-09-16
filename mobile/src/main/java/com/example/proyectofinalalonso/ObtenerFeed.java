@@ -48,7 +48,7 @@ public class ObtenerFeed extends AsyncTask{
     @Override
     protected Object doInBackground(Object[] objects) {
         // Initializing instance variables
-
+        String descripcion = "";
 
         try {
             url = new URL(rss);
@@ -85,7 +85,8 @@ public class ObtenerFeed extends AsyncTask{
                             links.add(xpp.nextText()); //extract the link of article
                     }else if (xpp.getName().equalsIgnoreCase("description")) {
                         if (insideItem)
-                            description.add(xpp.nextText()); //extract the description of the article
+                            //descripcion=removeHtmlTags(xpp.nextText());
+                            description.add(removeHtmlTags(xpp.nextText())); //extract the description of the article
                     }
 
                 } else if (eventType == XmlPullParser.END_TAG && xpp.getName().equalsIgnoreCase("item")) {
@@ -120,6 +121,20 @@ public class ObtenerFeed extends AsyncTask{
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public String removeHtmlTags(String inStr) {
+        int index=0;
+        int index2=0;
+        while(index!=-1)
+        {
+            index = inStr.indexOf("<");
+            index2 = inStr.indexOf(">", index);
+            if(index!=-1 && index2!=-1){
+                inStr = inStr.substring(0, index).concat(inStr.substring(index2+1, inStr.length()));
+            }
+        }
+        return inStr;
     }
 
 }

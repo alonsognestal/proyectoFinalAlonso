@@ -44,11 +44,12 @@ public class DetalleRssActivity extends AppCompatActivity {
         description = getXML.getDescription();
 
         listView = (ExpandableListView) findViewById(R.id.lvExp);
-        hashMap = initData(headlines, description);
-        int numero = hashMap.size();
-        Log.d("Número: ",Integer.toString(numero));
+        //hashMap = initData(headlines, description);
+        // int numero = hashMap.size();
+        //Log.d("Número: ",Integer.toString(numero));
         //SystemClock.sleep(2000);
-        listAdapter = new ExpandableListAdapter(this, headlines, hashMap, 0);
+
+        listAdapter = new ExpandableListAdapter(this, headlines, description);
         //SystemClock.sleep(2000);
         listView.setAdapter(listAdapter);
 
@@ -57,7 +58,7 @@ public class DetalleRssActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_2, links);*/
 
         /*setListAdapter(adapter);*/
-        SystemClock.sleep(4000);
+        SystemClock.sleep(1000);
         //getListView().setTextFilterEnabled(true);
         listAdapter.notifyDataSetChanged();
     }
@@ -72,4 +73,6 @@ public class DetalleRssActivity extends AppCompatActivity {
         }
         return hashMap;
     }
+
+
 }
