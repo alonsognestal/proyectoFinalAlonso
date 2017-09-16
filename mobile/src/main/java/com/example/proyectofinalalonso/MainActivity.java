@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
+import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.navigation_view);
 
         // Añado toolbar
@@ -206,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 */
         /*IntentFilter filtro = new IntentFilter(ACCION_DEMO);
         registerReceiver(new ReceptorAnuncio(), filtro);*/
+        //android.os.Debug.waitForDebugger();
     }
 
     //region Barra de acciones

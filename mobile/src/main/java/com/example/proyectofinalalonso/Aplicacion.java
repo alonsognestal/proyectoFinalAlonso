@@ -36,11 +36,13 @@ public class Aplicacion extends Application {
     static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private String ITEMS_CHILD_NAME = "generos";
     private String RADIOS = "emisoras";
+    private String NOTICIAS = "noticias";
     private String genero;
     private String nombreEmisora;
 
     private static DatabaseReference generosReference; //Referencia a la base de datos de géneros
     private static DatabaseReference radiosReference; //Referencia a la base de datos de emisoras de radio
+    private static DatabaseReference noticiasReference; //Referencia a la base de datos de noticias
     private static Context context;
     private FirebaseAuth auth;
     private static RequestQueue colaPeticiones;
@@ -137,4 +139,38 @@ public class Aplicacion extends Application {
         return query;
 
     }
+
+    //Método público para obtener la referencia de la BBDD de las emisoras de radio
+    public DatabaseReference obtenerEmisorasConRss() {
+        //final ArrayList<EmisoraRadio> lista = new ArrayList<EmisoraRadio>();
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        //Importante poner el keepSynced(True) para obtener siempre la última información en remoto
+        firebaseDatabase.getReference(NOTICIAS).keepSynced(true);
+        noticiasReference = firebaseDatabase.getReference(NOTICIAS);
+
+        Query query = noticiasReference.orderByChild("nombre");
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        Noticia noticia = postSnapshot.getValue(Noticia.class);
+                        System.out.println(noticia.getNombre() + " - " + noticia.geturlimagen() + " - " + noticia.getRss());
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return noticiasReference;
+
+    }
+
 }

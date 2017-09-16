@@ -94,20 +94,6 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
         // Inicializando el volumen
         initializeVolume();
 
-        //Obtener feed
-        ArrayList<String> headlines = new ArrayList<>();
-
-        ObtenerFeed getXML = new ObtenerFeed();
-        getXML.execute();
-        headlines = getXML.heads();
-
-
-        // Binding data
-        ArrayAdapter adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, headlines);
-
-        //setListAdapter(adapter);
-
 
         mMediaBrowserCompat = new MediaBrowserCompat(this, new ComponentName(this, BackgroundAudioService.class),
         mMediaBrowserCompatConnectionCallback, getIntent().getExtras());
