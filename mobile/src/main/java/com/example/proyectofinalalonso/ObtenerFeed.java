@@ -1,6 +1,7 @@
 package com.example.proyectofinalalonso;
 
 import android.os.AsyncTask;
+import android.text.Html;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -86,7 +87,7 @@ public class ObtenerFeed extends AsyncTask{
                     }else if (xpp.getName().equalsIgnoreCase("description")) {
                         if (insideItem)
                             //descripcion=removeHtmlTags(xpp.nextText());
-                            description.add(removeHtmlTags(xpp.nextText())); //extract the description of the article
+                            description.add(Html.fromHtml(xpp.nextText()).toString()); //extract the description of the article
                     }
 
                 } else if (eventType == XmlPullParser.END_TAG && xpp.getName().equalsIgnoreCase("item")) {
