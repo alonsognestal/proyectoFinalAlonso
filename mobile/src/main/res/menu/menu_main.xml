@@ -9,15 +9,13 @@
         android:title="Preferencias"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/menu_buscar"
-        android:icon="@android:drawable/ic_menu_search"
-        android:orderInCategory="90"
-        android:title="Buscar"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
-    <item
         android:id="@+id/menu_acerca"
         android:orderInCategory="110"
         android:title="Acerca de..."
         app:showAsAction="never" />
+    <item
+        android:id="@+id/media_route_menu_item"
+        android:title="Cast"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="always" />
 </menu>
