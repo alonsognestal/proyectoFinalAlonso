@@ -1,11 +1,17 @@
 package com.example.proyectofinalalonso;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +22,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 import java.io.InputStream;
 
@@ -36,6 +43,11 @@ public class AdaptadorNews extends FirebaseRecyclerAdapter<Noticia, AdaptadorNew
     //Al adaptador, en vez de pasarle un vector o un arraylist le tengo que pasar la base de datos de Firebase.
     public AdaptadorNews(int modelLayout, Context context, DatabaseReference ref) {
         super(Noticia.class, modelLayout, AdaptadorNews.EventoViewHolder.class,ref);
+        this.context=context;
+    }
+
+    public AdaptadorNews(int modelLayout, Context context, Query query) {
+        super(Noticia.class, modelLayout, AdaptadorNews.EventoViewHolder.class,query);
         this.context=context;
     }
 
@@ -68,19 +80,24 @@ public class AdaptadorNews extends FirebaseRecyclerAdapter<Noticia, AdaptadorNew
         }
 
         @Override
-        public void onClick(View v) {
-            //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
-            int position = getAdapterPosition();
-            Noticia noticia = getItem(position);
-            Intent intent = new Intent(context, DetalleRssActivity.class);
-            Bundle extras = new Bundle();
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            extras.putString("rss", noticia.getRss());
-            intent.putExtras(extras);
-            //intent.putExtra("imagenGenero", currentItem.getUrl());
-            context.startActivity(intent);
-        }
+    public void onClick(View v) {
+        //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
+        int position = getAdapterPosition();
+        Noticia noticia = getItem(position);
+
+        Bundle extras = new Bundle();
+
+        extras.putString("rss", noticia.getRss());
+        Fragment fragment = new DetalleRssActivity();
+        fragment.setArguments(extras);
+
+        FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.simpleFrameLayout, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
     }
+}
 
 
 }
