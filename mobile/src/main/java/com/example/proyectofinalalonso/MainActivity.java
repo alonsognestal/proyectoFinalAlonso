@@ -47,6 +47,10 @@ import android.widget.Toast;
 import com.android.volley.toolbox.NetworkImageView;
 import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -81,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MediaControllerCompat mMediaControllerCompat;
 
     private Button mPlayPauseToggleButton;
+    private CastSession mCastSession;
+    private SessionManager mSessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +190,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fotoUsuario.setImageUrl(urlImagen.toString(),
                     aplicacion.getLectorImagenes());
         }
-
+        CastContext castContext = CastContext.getSharedInstance(this);
+        mSessionManager = castContext.getSessionManager();
         /*//Lanzamos la notificación
         notificacion = new NotificationCompat.Builder(this);
         notificacion
@@ -222,10 +229,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //mMediaBrowserCompat.disconnect();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), menu, R.id.media_route_menu_item);
+        return true;
     }
 
     @Override
@@ -233,8 +243,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         if (id == R.id.menu_preferencias) {
             Toast.makeText(this, "Preferencias", Toast.LENGTH_LONG).show();
-            return true;
-        } else if (id == R.id.menu_buscar) {
             return true;
         } else if (id == R.id.menu_acerca) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -268,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             pref.edit().remove("provider").commit();
                             pref.edit().remove("email").commit();
                             pref.edit().remove("name").commit();
-                            Intent i = new Intent(MainActivity.this,LoginActivity.class);
+                            Intent i = new Intent(MainActivity.this, LoginActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                                     | Intent.FLAG_ACTIVITY_NEW_TASK
                                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);

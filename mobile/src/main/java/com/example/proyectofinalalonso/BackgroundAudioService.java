@@ -7,9 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -26,18 +32,26 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.graphics.Target;
 import android.text.TextUtils;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static android.media.session.PlaybackState.STATE_PLAYING;
+import static com.example.proyectofinalalonso.R.id.imagen;
 
 /**
  * Created by Alonso on 10/09/2017.
  */
 
-public class BackgroundAudioService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener  {
+public class BackgroundAudioService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
     public static final String COMMAND_EXAMPLE = "command_example";
 
@@ -47,7 +61,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
     private BroadcastReceiver mNoisyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if( mMediaPlayer != null && mMediaPlayer.isPlaying() ) {
+            if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
             }
         }
@@ -58,14 +72,20 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         @Override
         public void onPlay() {
             super.onPlay();
-            if( !successfullyRetrievedAudioFocus() ) {
+            if (!successfullyRetrievedAudioFocus()) {
                 return;
             }
 
             mMediaSessionCompat.setActive(true);
             setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
 
-            showPlayingNotification();
+            try {
+                showPlayingNotification();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             mMediaPlayer.start();
         }
 
@@ -73,19 +93,58 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         public void onPause() {
             super.onPause();
 
-            if( mMediaPlayer.isPlaying() ) {
+            if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
                 setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED);
-                showPausedNotification();
+                try {
+                    showPausedNotification();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
+        @Override
+        public void onPlayFromUri(Uri uri, Bundle extras) {
+            super.onPlayFromUri(uri, extras);
+
+            try {
+                //AssetFileDescriptor afd = getResources().openRawResourceFd(Integer.valueOf(uri));
+                /*if( afd == null ) {
+                    return;
+                }*/
+
+                try {
+                    mMediaPlayer.setDataSource(uri.toString());
+
+                } catch (IllegalStateException e) {
+                    mMediaPlayer.release();
+                    initMediaPlayer();
+                    mMediaPlayer.setDataSource(uri.toString());
+                }
+
+                //afd.close();
+                initMediaSessionMetadata(extras);
+
+            } catch (IOException e) {
+                return;
+            }
+
+            try {
+                mMediaPlayer.prepare();
+            } catch (IOException e) {
+            }
+
+            //Work with extras here if you want
+        }
 
 
         @Override
         public void onCommand(String command, Bundle extras, ResultReceiver cb) {
             super.onCommand(command, extras, cb);
-            if( COMMAND_EXAMPLE.equalsIgnoreCase(command) ) {
+            if (COMMAND_EXAMPLE.equalsIgnoreCase(command)) {
                 //Custom command here
             }
         }
@@ -129,9 +188,10 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         mMediaPlayer.setVolume(1.0f, 1.0f);
     }
 
-    private void showPlayingNotification() {
-        NotificationCompat.Builder builder = MediaStyleHelper.from(BackgroundAudioService.this, mMediaSessionCompat);
-        if( builder == null ) {
+    private void showPlayingNotification() throws ExecutionException, InterruptedException {
+        MediaStyleHelper mediaStyleHelper = new MediaStyleHelper();
+        NotificationCompat.Builder builder = mediaStyleHelper.from(BackgroundAudioService.this, mMediaSessionCompat);
+        if (builder == null) {
             return;
         }
 
@@ -142,9 +202,10 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         NotificationManagerCompat.from(BackgroundAudioService.this).notify(1, builder.build());
     }
 
-    private void showPausedNotification() {
-        NotificationCompat.Builder builder = MediaStyleHelper.from(this, mMediaSessionCompat);
-        if( builder == null ) {
+    private void showPausedNotification() throws ExecutionException, InterruptedException {
+        MediaStyleHelper mediaStyleHelper = new MediaStyleHelper();
+        NotificationCompat.Builder builder = mediaStyleHelper.from(this, mMediaSessionCompat);
+        if (builder == null) {
             return;
         }
 
@@ -160,7 +221,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         mMediaSessionCompat = new MediaSessionCompat(getApplicationContext(), "Tag", mediaButtonReceiver, null);
 
         mMediaSessionCompat.setCallback(mMediaSessionCallback);
-        mMediaSessionCompat.setFlags( MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS );
+        mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setClass(this, MediaButtonReceiver.class);
@@ -172,7 +233,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
 
     private void setMediaPlaybackState(int state) {
         PlaybackStateCompat.Builder playbackstateBuilder = new PlaybackStateCompat.Builder();
-        if( state == PlaybackStateCompat.STATE_PLAYING ) {
+        if (state == PlaybackStateCompat.STATE_PLAYING) {
             playbackstateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PAUSE);
         } else {
             playbackstateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY);
@@ -181,20 +242,29 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         mMediaSessionCompat.setPlaybackState(playbackstateBuilder.build());
     }
 
-    private void initMediaSessionMetadata() {
-        MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder();
-        //Notification icon in card
-        metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-        metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+    private void initMediaSessionMetadata(Bundle bundle) {
+        try {
+            MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder();
+            ImageView imgView = new ImageView(getApplicationContext());
+            //Notification icon in card
+            bundle.getString("imagen");
+            bundle.getString("URLAudio");
 
-        //lock screen icon for pre lollipop
-        metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Display Title");
-        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Display Subtitle");
-        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, 1);
-        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, 1);
 
-        mMediaSessionCompat.setMetadata(metadataBuilder.build());
+            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, bundle.getString("URLAudio"));
+            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+
+            //lock screen icon for pre lollipop
+            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, bundle.getString("idEmisora"));
+            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, getResources().getString(R.string.radio_en_directo));
+            metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, 1);
+            metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, 1);
+
+            mMediaSessionCompat.setMetadata(metadataBuilder.build());
+        } catch (Exception e) {
+
+        }
     }
 
     private boolean successfullyRetrievedAudioFocus() {
@@ -211,7 +281,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
-        if(TextUtils.equals(clientPackageName, getPackageName())) {
+        if (TextUtils.equals(clientPackageName, getPackageName())) {
             return new BrowserRoot(getString(R.string.app_name), null);
         }
 
@@ -226,9 +296,9 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
 
     @Override
     public void onAudioFocusChange(int focusChange) {
-        switch( focusChange ) {
+        switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS: {
-                if( mMediaPlayer.isPlaying() ) {
+                if (mMediaPlayer.isPlaying()) {
                     mMediaPlayer.stop();
                 }
                 break;
@@ -238,14 +308,14 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
                 break;
             }
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK: {
-                if( mMediaPlayer != null ) {
+                if (mMediaPlayer != null) {
                     mMediaPlayer.setVolume(0.3f, 0.3f);
                 }
                 break;
             }
             case AudioManager.AUDIOFOCUS_GAIN: {
-                if( mMediaPlayer != null ) {
-                    if( !mMediaPlayer.isPlaying() ) {
+                if (mMediaPlayer != null) {
+                    if (!mMediaPlayer.isPlaying()) {
                         mMediaPlayer.start();
                     }
                     mMediaPlayer.setVolume(1.0f, 1.0f);
@@ -257,7 +327,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        if( mMediaPlayer != null ) {
+        if (mMediaPlayer != null) {
             mMediaPlayer.release();
         }
     }

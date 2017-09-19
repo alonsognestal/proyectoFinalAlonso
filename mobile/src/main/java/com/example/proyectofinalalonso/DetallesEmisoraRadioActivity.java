@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ClipDrawable;
 import android.media.AudioManager;
@@ -12,6 +13,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -20,8 +22,10 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,6 +45,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -50,12 +55,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import static android.R.attr.bitmap;
 import static android.R.attr.category;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 07/09/2017.
  */
 
-public class DetallesEmisoraRadioActivity extends AppCompatActivity implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
+public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
 
     MediaController mediaController;
     MediaPlayer mediaPlayer;
@@ -66,80 +72,88 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
     String URLAudio = "";
     private static final int STATE_PAUSED = 0;
     private static final int STATE_PLAYING = 1;
-
+    Bundle bundleGlobal = new Bundle();
     private int mCurrentState;
 
     private MediaBrowserCompat mMediaBrowserCompat;
     private MediaControllerCompat mMediaControllerCompat;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_emisora_radio_detalle);
-        Intent intent = getIntent();
-        String idEmisora = intent.getStringExtra("idEmisora");
-        String imagen = intent.getStringExtra("imagen");
-        URLAudio = intent.getStringExtra("URLAudio");
-        String rss = intent.getStringExtra("rss");
-        String genero = intent.getStringExtra("genero");
+    }
 
-        txtView = (TextView)findViewById(R.id.txtTitulo);
-        imgView = (ImageView)findViewById(R.id.imgLogo);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.activity_emisora_radio_detalle, container, false);
+        Bundle bundle = this.getArguments();
+        String idEmisora = bundle.getString("idEmisora");
+        String imagen = bundle.getString("imagen");
+        URLAudio = bundle.getString("URLAudio");
+        String rss = bundle.getString("rss");
+        String genero = bundle.getString("genero");
+
+        txtView = (TextView) rootView.findViewById(R.id.txtTitulo);
+        imgView = (ImageView) rootView.findViewById(R.id.imgLogo);
         txtView.setText(idEmisora);
         Glide.with(this).load(imagen).into(imgView);
         final Uri audio = Uri.parse(URLAudio);
+        //bundle.putParcelable("logoEmisora", imgView);
+        bundleGlobal = bundle;
 
         // Inicializo el objeto MediaPlayer
         initializeMediaPlayer();
 
         // Inicializando el volumen
-        initializeVolume();
+        initializeVolume(rootView);
 
 
-        mMediaBrowserCompat = new MediaBrowserCompat(this, new ComponentName(this, BackgroundAudioService.class),
-        mMediaBrowserCompatConnectionCallback, getIntent().getExtras());
+        mMediaBrowserCompat = new MediaBrowserCompat(getActivity(), new ComponentName(getActivity(), BackgroundAudioService.class),
+                mMediaBrowserCompatConnectionCallback, bundleGlobal);
 
         mMediaBrowserCompat.connect();
 
-        buttonStreaming = (ToggleButton) findViewById(R.id.playPauseButton);
-        buttonStreaming.setEnabled(true);
-        isPlay=true;
-        startPlaying(audio);
+        buttonStreaming = (ToggleButton) rootView.findViewById(R.id.playPauseButton);
         buttonStreaming.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-               // buttonStreaming.setEnabled(true);
+                buttonStreaming.setEnabled(true);
 
                 isPlay = !isPlay;
 
                 if (isPlay) {
-                    startPlaying(audio);
-                } else {
-                    stopPlaying();
-                }
-                /*if( mCurrentState == STATE_PAUSED ) {
-                    getSupportMediaController().getTransportControls().play();
-                    mCurrentState = STATE_PLAYING;
-                } else {
-                    if( getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ) {
-                        getSupportMediaController().getTransportControls().pause();
-                    }
+                    if (mCurrentState == STATE_PAUSED) {
+                        getActivity().getSupportMediaController().getTransportControls().play();
+                        mCurrentState = STATE_PLAYING;
+                        buttonStreaming.setEnabled(false);
+                    } else {
+                        if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                            getActivity().getSupportMediaController().getTransportControls().pause();
+                        }
 
-                    mCurrentState = STATE_PAUSED;
-                }*/
+                        mCurrentState = STATE_PAUSED;
+                        buttonStreaming.setEnabled(true);
+                    }
+                    //startPlaying(audio);
+                } else {
+                    //stopPlaying();
+                }
+
             }
         });
-
+        return rootView;
        /* mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(this);
         mediaController = new MediaController(this);*/
     }
 
 
-    private void initializeVolume() {
+    private void initializeVolume(View rootView) {
         try {
-            final SeekBar volumeBar = (SeekBar) findViewById(R.id.volumeSeekBar);
-            final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            final SeekBar volumeBar = (SeekBar) rootView.findViewById(R.id.volumeSeekBar);
+            final AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 
             volumeBar.setMax(audioManager
                     .getStreamMaxVolume(AudioManager.STREAM_MUSIC));
@@ -189,7 +203,7 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
                     Toast.LENGTH_LONG).show();
 
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(this,audio);
+            mediaPlayer.setDataSource(getActivity(), audio);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -224,9 +238,9 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-       mp.start();
+        mp.start();
         mediaController.setMediaPlayer(this);
-        mediaController.setAnchorView(this.findViewById(R.id.fragment_detalle));
+        mediaController.setAnchorView(getActivity().findViewById(R.id.fragment_detalle));
         mediaController.setEnabled(true);
         mediaController.show();
     }
@@ -236,7 +250,8 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
         return false;
     }
 
-    @Override public void onStop() {
+    @Override
+    public void onStop() {
         //TODO: Cuando entra aquí el mediaController es nulo :S
         //mediaController.hide();
         try {
@@ -265,11 +280,9 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
 
     @Override
     public int getCurrentPosition() {
-        try{
+        try {
             return mediaPlayer.getCurrentPosition();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -315,13 +328,14 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
         public void onConnected() {
             super.onConnected();
             try {
-                final Uri audio = Uri.parse(URLAudio);
-                mMediaControllerCompat = new MediaControllerCompat(DetallesEmisoraRadioActivity.this, mMediaBrowserCompat.getSessionToken());
-                mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
-                setSupportMediaController(mMediaControllerCompat);
-                getSupportMediaController().getTransportControls().playFromUri(audio, null);
 
-            } catch( RemoteException e ) {
+                final Uri audio = Uri.parse(URLAudio);
+                mMediaControllerCompat = new MediaControllerCompat(getActivity(), mMediaBrowserCompat.getSessionToken());
+                mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
+                getActivity().setSupportMediaController(mMediaControllerCompat);
+                getActivity().getSupportMediaController().getTransportControls().playFromUri(audio, bundleGlobal);
+
+            } catch (RemoteException e) {
 
             }
         }
@@ -332,11 +346,11 @@ public class DetallesEmisoraRadioActivity extends AppCompatActivity implements V
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             super.onPlaybackStateChanged(state);
-            if( state == null ) {
+            if (state == null) {
                 return;
             }
 
-            switch( state.getState() ) {
+            switch (state.getState()) {
                 case PlaybackStateCompat.STATE_PLAYING: {
                     mCurrentState = STATE_PLAYING;
                     break;

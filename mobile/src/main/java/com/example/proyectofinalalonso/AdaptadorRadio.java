@@ -5,6 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,11 +71,16 @@ public class AdaptadorRadio extends FirebaseRecyclerAdapter<Genero, AdaptadorRad
             int position = getAdapterPosition();
             Genero currentItem = (Genero) getItem(position);
             Context context = Aplicacion.getAppContext();
-            Intent intent = new Intent(context, ListadoRadiosActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("textoGenero", currentItem.nombre);
-            //intent.putExtra("imagenGenero", currentItem.getUrl());
-            context.startActivity(intent);
+            Bundle bundle = new Bundle();
+            bundle.putString("textoGenero", currentItem.nombre);
+            Fragment fragment = new ListadoRadiosActivity();
+            fragment.setArguments(bundle);
+
+            FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.simpleFrameLayout, fragment);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
         }
     }
 

@@ -20,12 +20,13 @@ import com.google.firebase.database.Query;
 import butterknife.ButterKnife;
 
 import static com.example.proyectofinalalonso.Aplicacion.PLAY_SERVICES_RESOLUTION_REQUEST;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 02/09/2017.
  */
 
-public class ListadoRadiosActivity extends Activity {
+public class ListadoRadiosActivity extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
@@ -35,16 +36,20 @@ public class ListadoRadiosActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_listado_radios);
-        Intent intent = getIntent();
-        recyclerView = (RecyclerView) findViewById(R.id.card_recycler_view);
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.activity_listado_radios, container, false);
+        Bundle bundle = this.getArguments();
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new GridLayoutManager(getApplicationContext(),1);
-        String textoGenero = intent.getStringExtra("textoGenero");
+        String textoGenero = bundle.getString("textoGenero");
         if (!comprobarGooglePlayServices()) {
-            Toast.makeText(this, "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
+            Toast.makeText(getActivity(), "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
-        ButterKnife.bind(this);
+        ButterKnife.bind(getActivity());
         Aplicacion app = new Aplicacion(textoGenero);
         //app = (Aplicacion) getApplicationContext();
         app.setGenero(textoGenero);
@@ -53,16 +58,17 @@ public class ListadoRadiosActivity extends Activity {
         AdaptadorListadoRadios adapter = new AdaptadorListadoRadios(R.layout.content_listado_radios,getApplicationContext(), databaseReference.orderByChild("Categoria").equalTo(textoGenero));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        return rootView;
 
     }
 
     private boolean comprobarGooglePlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(), PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-                finish();
+                getActivity().finish();
             }
             return false;
         }
