@@ -127,18 +127,18 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
                     if (mCurrentState == STATE_PAUSED) {
                         getActivity().getSupportMediaController().getTransportControls().play();
                         mCurrentState = STATE_PLAYING;
-                        buttonStreaming.setEnabled(false);
-                    } else {
-                        if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                            getActivity().getSupportMediaController().getTransportControls().pause();
-                        }
+                        //buttonStreaming.setEnabled(false);
 
-                        mCurrentState = STATE_PAUSED;
-                        buttonStreaming.setEnabled(true);
                     }
                     //startPlaying(audio);
                 } else {
-                    //stopPlaying();
+                    if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                        getActivity().getSupportMediaController().getTransportControls().pause();
+                        mCurrentState = STATE_PAUSED;
+                    }
+
+
+                    //buttonStreaming.setEnabled(true);
                 }
 
             }
