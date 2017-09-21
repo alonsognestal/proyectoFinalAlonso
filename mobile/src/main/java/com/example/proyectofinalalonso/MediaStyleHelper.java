@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 import static android.R.attr.bitmap;
 import static android.R.attr.description;
+import static com.example.proyectofinalalonso.Aplicacion.bitmap1;
 
 /**
  * Created by Alonso on 10/09/2017.
@@ -33,28 +34,18 @@ public class MediaStyleHelper {
     public NotificationCompat.Builder from(
             Context context, MediaSessionCompat mediaSession) throws ExecutionException, InterruptedException {
 
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-        Bitmap bmp = Bitmap.createBitmap(300, 300, conf);
-        String test = new String();
         MediaControllerCompat controller = mediaSession.getController();
         MediaMetadataCompat mediaMetadata = controller.getMetadata();
         MediaDescriptionCompat description = mediaMetadata.getDescription();
         String url = description.getDescription().toString();
-        try {
-            bmp=new sendNotification(context)
-                    .execute(url).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder
                 .setContentTitle(description.getTitle())
                 .setContentText(description.getSubtitle())
                 .setSubText(description.getDescription())
-                .setLargeIcon(bmp)
+                .setLargeIcon(bitmap1)
                 .setContentIntent(controller.getSessionActivity())
                 .setDeleteIntent(
                         MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP))

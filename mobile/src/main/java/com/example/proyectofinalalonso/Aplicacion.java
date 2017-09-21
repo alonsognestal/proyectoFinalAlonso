@@ -9,6 +9,8 @@ import android.util.LruCache;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.SessionManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -47,12 +49,21 @@ public class Aplicacion extends Application {
     private FirebaseAuth auth;
     private static RequestQueue colaPeticiones;
     private static ImageLoader lectorImagenes;
+    static Bitmap bitmap1;
+    private static CastSession mCastSession;
+    private static SessionManager mSessionManager;
 
     public Aplicacion() {
     }
 
     public Aplicacion(String genero) {
         this.genero = genero;
+    }
+
+    public Aplicacion(CastSession castSession, SessionManager sessionManager)
+    {
+        this.mCastSession = castSession;
+        this.mSessionManager = sessionManager;
     }
 
     //Getters
@@ -79,6 +90,19 @@ public class Aplicacion extends Application {
     //Setters
     public void setGenero(String genero) {
         this.genero = genero;
+    }
+    public static void setmCastSession(CastSession mCastSession) {
+        Aplicacion.mCastSession = mCastSession;
+    }
+    public static void setmSessionManager(SessionManager mSessionManager) {
+        Aplicacion.mSessionManager = mSessionManager;
+    }
+    //Getters
+    public static CastSession getmCastSession() {
+        return Aplicacion.mCastSession;
+    }
+    public static SessionManager getmSessionManager() {
+        return Aplicacion.mSessionManager;
     }
 
     @Override

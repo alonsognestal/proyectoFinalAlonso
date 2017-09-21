@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ClipDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -27,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -37,6 +39,15 @@ import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.Session;
+import com.google.android.gms.cast.framework.SessionManager;
+import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,6 +66,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import static android.R.attr.bitmap;
 import static android.R.attr.category;
+import static com.example.proyectofinalalonso.Aplicacion.bitmap1;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -72,11 +84,18 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
     String URLAudio = "";
     private static final int STATE_PAUSED = 0;
     private static final int STATE_PLAYING = 1;
+    //private static final int STATE_STOP = 2;
     Bundle bundleGlobal = new Bundle();
     private int mCurrentState;
 
     private MediaBrowserCompat mMediaBrowserCompat;
     private MediaControllerCompat mMediaControllerCompat;
+    MainActivity main = new MainActivity();
+
+
+    private RemoteMediaClient remoteMediaClient;
+    private boolean isPlaying;
+    private Button audioButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,16 +113,23 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         String rss = bundle.getString("rss");
         String genero = bundle.getString("genero");
 
+        final SessionManager mSessionManager = Aplicacion.getmSessionManager();
+        final CastSession mCastSession = Aplicacion.getmCastSession();
+
         txtView = (TextView) rootView.findViewById(R.id.txtTitulo);
         imgView = (ImageView) rootView.findViewById(R.id.imgLogo);
         txtView.setText(idEmisora);
         Glide.with(this).load(imagen).into(imgView);
+
+       /* imgView.setImageBitmap(bitmap1);*/
+        imgView.buildDrawingCache();
+        bitmap1 = imgView.getDrawingCache();
         final Uri audio = Uri.parse(URLAudio);
         //bundle.putParcelable("logoEmisora", imgView);
         bundleGlobal = bundle;
 
         // Inicializo el objeto MediaPlayer
-        initializeMediaPlayer();
+        //initializeMediaPlayer();
 
         // Inicializando el volumen
         initializeVolume(rootView);
@@ -118,7 +144,7 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         buttonStreaming.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View arg0) {
+            public void onClick(View v) {
                 buttonStreaming.setEnabled(true);
 
                 isPlay = !isPlay;
@@ -133,20 +159,26 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
                     //startPlaying(audio);
                 } else {
                     if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                        getActivity().getSupportMediaController().getTransportControls().pause();
+                        getActivity().getSupportMediaController().getTransportControls().stop();
                         mCurrentState = STATE_PAUSED;
                     }
-
-
                     //buttonStreaming.setEnabled(true);
                 }
-
+                switch (v.getId()) {
+                    case R.id.playPauseButton:
+                        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+                        movieMetadata.putString(MediaMetadata.KEY_TITLE, "Big Buck Bunny");
+                        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, "Demo Google Cast UPV");
+                        //movieMetadata.addImage(new WebImage(Uri.parse("http://bbb3d.renderfarming.net/img/logo.png")));
+                        MediaInfo mediaInfo = new MediaInfo.Builder(URLAudio).setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType("audios/mp3").setMetadata(movieMetadata).build();
+                        remoteMediaClient = mCastSession.getRemoteMediaClient();
+                        remoteMediaClient.load(mediaInfo, true, 0);
+                        break;
+                }
             }
         });
         return rootView;
-       /* mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnPreparedListener(this);
-        mediaController = new MediaController(this);*/
+
     }
 
 
@@ -258,7 +290,7 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
             mediaPlayer.stop();
             mediaPlayer.release();
         } catch (Exception e) {
-            Log.d("Audiolibros", "Error en mediaPlayer.stop()");
+            Log.d("", "Error en mediaPlayer.stop()");
         }
         super.onStop();
     }
@@ -363,4 +395,39 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         }
     };
 
+   /* private final View.OnClickListener btnClickListener = new View.OnClickListener() {
+        String idEmisora = bundleGlobal.getString("idEmisora");
+        String imagen = bundleGlobal.getString("imagen");
+        String URLAudio = bundleGlobal.getString("URLAudio");
+        String rss = bundleGlobal.getString("rss");
+        String genero = bundleGlobal.getString("genero");
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.playPauseButton:
+                    if (isPlaying) {
+                        buttonStreaming.setText("Play");
+                        remoteMediaClient.pause();
+                        isPlaying = false;
+                    } else {
+                        buttonStreaming.setText("Pausa");
+                        remoteMediaClient.play();
+                        isPlaying = true;
+                    }
+                    break;
+                case R.id.btn_audio:
+                    MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+                    Uri.parse(URLAudio);
+                    movieMetadata.putString(MediaMetadata.KEY_TITLE, "Big Buck Bunny");
+                    movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, "Demo Google Cast UPV");
+                    movieMetadata.addImage(new WebImage(Uri.parse("http://bbb3d.renderfarming.net/img/logo.png")));
+                    MediaInfo mediaInfo = new MediaInfo.Builder(URLAudio).setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType("videos/mp4").setMetadata(movieMetadata).build();
+                    remoteMediaClient = mCastSession.getRemoteMediaClient();
+                    remoteMediaClient.load(mediaInfo, true, 0);
+                    break;
+
+            }
+        }
+    };*/
 }

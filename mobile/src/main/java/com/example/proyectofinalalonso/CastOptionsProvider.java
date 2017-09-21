@@ -16,7 +16,7 @@ import java.util.List;
 public class CastOptionsProvider implements OptionsProvider {
     @Override
     public CastOptions getCastOptions(Context appContext) {
-        CastOptions castOptions = new CastOptions.Builder() .setReceiverApplicationId("4F8B3483") .build();
+        CastOptions castOptions = new CastOptions.Builder() .setReceiverApplicationId("7B16A125") .build();
         return castOptions;
     }
 

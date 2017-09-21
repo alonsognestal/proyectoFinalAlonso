@@ -2,7 +2,7 @@
 
     <group android:checkableBehavior="single">
 
-        <item
+        <!--<item
             android:id="@+id/nav_todos"
             android:icon="@android:drawable/ic_menu_gallery"
             android:title="Todos los géneros" />
@@ -20,7 +20,7 @@
         <item
             android:id="@+id/nav_suspense"
             android:icon="@android:drawable/ic_menu_gallery"
-            android:title="Suspense" />
+            android:title="Suspense" />-->
     </group>
 
     <item android:title="Acciones adicionales">

@@ -50,7 +50,9 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManager;
+import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -85,15 +87,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MediaControllerCompat mMediaControllerCompat;
 
     private Button mPlayPauseToggleButton;
-    private CastSession mCastSession;
-    private SessionManager mSessionManager;
+    CastSession mCastSession;
+    SessionManager mSessionManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.navigation_view);
-
+        CastContext castContext = CastContext.getSharedInstance(this);
         // Añado toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -190,32 +194,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fotoUsuario.setImageUrl(urlImagen.toString(),
                     aplicacion.getLectorImagenes());
         }
-        CastContext castContext = CastContext.getSharedInstance(this);
+        Fragment fragment = null;
+
+        fragment = new NewsActivity();
+
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.simpleFrameLayout, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
         mSessionManager = castContext.getSessionManager();
-        /*//Lanzamos la notificación
-        notificacion = new NotificationCompat.Builder(this);
-        notificacion
-                .setContent(remoteViews)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setUsesChronometer(true)
-
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Notificación personalizada")
-                .setContentText("Artista - Álbum")
-                .setStyle(new NotificationCompat.MediaStyle());
-
-        notificManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificManager.notify(ID_NOTIFICACION, notificacion.build());*/
-
-        //Para lanzar una actividad cuando se pulse en la notificación
-        /*Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notificacion = new NotificationCompat.Builder(this).setContentIntent(pendingIntent);
-*/
-        /*IntentFilter filtro = new IntentFilter(ACCION_DEMO);
-        registerReceiver(new ReceptorAnuncio(), filtro);*/
-        //android.os.Debug.waitForDebugger();
     }
 
     //region Barra de acciones
@@ -260,13 +249,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_todos) {
 
-        } else if (id == R.id.nav_epico) {
 
-        } else if (id == R.id.nav_XIX) {
-
-        } else if (id == R.id.nav_signout) {
+        if (id == R.id.nav_signout) {
             AuthUI.getInstance().signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -300,16 +285,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-   /* public class ReceptorAnuncio extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String param = intent.getStringExtra(EXTRA_PARAM);
-            Toast.makeText(context, "Parámetro:" + param, Toast.LENGTH_LONG).show();
-            contador++;
-            remoteViews.setTextViewText(R.id.texto, "Contador: " + contador);
-            notificManager.notify(ID_NOTIFICACION, notificacion.build());
-        }
-    }*/
+    private final SessionManagerListener mSessionManagerListener = new SessionManagerListenerImpl();
 
+    private class SessionManagerListenerImpl implements SessionManagerListener {
+        @Override
+        public void onSessionStarted(Session session, String sessionId) {
+
+            invalidateOptionsMenu();
+            mCastSession = mSessionManager.getCurrentCastSession();
+            Aplicacion.setmCastSession(mCastSession);
+
+        }
+
+        @Override
+        public void onSessionResumed(Session session, boolean wasSuspended) {
+            invalidateOptionsMenu();
+
+        }
+
+        @Override
+        public void onSessionSuspended(Session session, int error) {
+
+        }
+
+        @Override
+        public void onSessionStarting(Session session) {
+        }
+
+        @Override
+        public void onSessionResuming(Session session, String sessionId) {
+        }
+
+        @Override
+        public void onSessionStartFailed(Session session, int error) {
+        }
+
+        @Override
+        public void onSessionResumeFailed(Session session, int error) {
+        }
+
+        @Override
+        public void onSessionEnding(Session session) {
+        }
+
+        @Override
+        public void onSessionEnded(Session session, int error) {
+            finish();
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSessionManager.addSessionManagerListener(mSessionManagerListener);
+        mCastSession = mSessionManager.getCurrentCastSession();
+        Aplicacion.setmCastSession(mCastSession);
+        Aplicacion.setmSessionManager(mSessionManager);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSessionManager.removeSessionManagerListener(mSessionManagerListener);
+        mCastSession = null;
+        Aplicacion.setmCastSession(mCastSession);
+        Aplicacion.setmSessionManager(mSessionManager);
+    }
 
 }
+
