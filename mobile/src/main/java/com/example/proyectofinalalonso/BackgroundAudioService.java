@@ -94,7 +94,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
             super.onPause();
 
             if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.stop();
+                mMediaPlayer.pause();
                 setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED);
                 try {
                     showPausedNotification();
