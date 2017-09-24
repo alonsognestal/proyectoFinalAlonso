@@ -11,6 +11,7 @@ import android.graphics.drawable.ClipDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.session.MediaSessionManager;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -73,23 +74,22 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Alonso on 07/09/2017.
  */
 
-public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
+public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTouchListener {
 
-    MediaController mediaController;
-    MediaPlayer mediaPlayer;
     TextView txtView;
     ImageView imgView;
     boolean isPlay = false;
     ToggleButton buttonStreaming;
     String URLAudio = "";
-    private static final int STATE_PAUSED = 0;
+    //private static final int STATE_PAUSED = 0;
     private static final int STATE_PLAYING = 1;
+    private static final int STATE_STOPPED = 0;
     //private static final int STATE_STOP = 2;
     Bundle bundleGlobal = new Bundle();
     private int mCurrentState;
 
-    private MediaBrowserCompat mMediaBrowserCompat;
-    private MediaControllerCompat mMediaControllerCompat;
+    private static MediaBrowserCompat mMediaBrowserCompat;
+    private static MediaControllerCompat mMediaControllerCompat;
     MainActivity main = new MainActivity();
 
 
@@ -103,15 +103,20 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
     }
 
     @Override
+    public void onDestroy() {
+        mMediaBrowserCompat.disconnect();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_emisora_radio_detalle, container, false);
         Bundle bundle = this.getArguments();
-        String idEmisora = bundle.getString("idEmisora");
-        String imagen = bundle.getString("imagen");
+        final String idEmisora = bundle.getString("idEmisora");
+        final String imagen = bundle.getString("imagen");
         URLAudio = bundle.getString("URLAudio");
         String rss = bundle.getString("rss");
-        String genero = bundle.getString("genero");
+        final String genero = bundle.getString("genero");
 
         final SessionManager mSessionManager = Aplicacion.getmSessionManager();
         final CastSession mCastSession = Aplicacion.getmCastSession();
@@ -127,6 +132,13 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         final Uri audio = Uri.parse(URLAudio);
         //bundle.putParcelable("logoEmisora", imgView);
         bundleGlobal = bundle;
+        final Intent i = new Intent(getActivity(),
+                ServicioMusica.class);
+        i.putExtra("idEmisora", idEmisora);
+        i.putExtra("imagen", imagen);
+        i.putExtra("URLAudio", URLAudio);
+        i.putExtra("rss", rss);
+        i.putExtra("genero", genero);
 
         // Inicializo el objeto MediaPlayer
         //initializeMediaPlayer();
@@ -134,13 +146,12 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         // Inicializando el volumen
         initializeVolume(rootView);
 
-
         mMediaBrowserCompat = new MediaBrowserCompat(getActivity(), new ComponentName(getActivity(), BackgroundAudioService.class),
                 mMediaBrowserCompatConnectionCallback, bundleGlobal);
-
         mMediaBrowserCompat.connect();
 
         buttonStreaming = (ToggleButton) rootView.findViewById(R.id.playPauseButton);
+
         buttonStreaming.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -150,31 +161,46 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
                 isPlay = !isPlay;
 
                 if (isPlay) {
-                    if (mCurrentState == STATE_PAUSED) {
-                        getActivity().getSupportMediaController().getTransportControls().play();
-                        mCurrentState = STATE_PLAYING;
-                        //buttonStreaming.setEnabled(false);
-
+                    getActivity().startService(i);
+                    switch (v.getId()) {
+                        case R.id.playPauseButton:
+                            if (remoteMediaClient != null) {
+                                MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+                                movieMetadata.putString(MediaMetadata.KEY_TITLE, idEmisora);
+                                movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, genero);
+                                movieMetadata.addImage(new WebImage(Uri.parse(imagen)));
+                                MediaInfo mediaInfo = new MediaInfo.Builder(URLAudio).setStreamType(MediaInfo.STREAM_TYPE_LIVE).setContentType("audios/mp3").setMetadata(movieMetadata).build();
+                                remoteMediaClient = mCastSession.getRemoteMediaClient();
+                                remoteMediaClient.load(mediaInfo, true, 0);
+                                isPlaying = true;
+                                break;
+                            }
                     }
                     //startPlaying(audio);
                 } else {
-                    if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    /*if (getActivity().getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                         getActivity().getSupportMediaController().getTransportControls().stop();
-                        mCurrentState = STATE_PAUSED;
+                        mCurrentState = STATE_STOPPED;
+                        mMediaBrowserCompat.disconnect();
+                        Log.d("", "Llamada a disconnect() dentro del else");
+                        Log.d("", String.valueOf(mMediaBrowserCompat.isConnected()));
+                    }*/
+                    if (remoteMediaClient != null) {
+                        if (isPlaying) {
+
+                            remoteMediaClient.pause();
+                            isPlaying = false;
+                        } else {
+
+                            remoteMediaClient.play();
+                            isPlaying = true;
+                        }
                     }
+                    //stopPlaying();
+                    getActivity().stopService(i);
                     //buttonStreaming.setEnabled(true);
                 }
-                switch (v.getId()) {
-                    case R.id.playPauseButton:
-                        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-                        movieMetadata.putString(MediaMetadata.KEY_TITLE, "Big Buck Bunny");
-                        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, "Demo Google Cast UPV");
-                        //movieMetadata.addImage(new WebImage(Uri.parse("http://bbb3d.renderfarming.net/img/logo.png")));
-                        MediaInfo mediaInfo = new MediaInfo.Builder(URLAudio).setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType("audios/mp3").setMetadata(movieMetadata).build();
-                        remoteMediaClient = mCastSession.getRemoteMediaClient();
-                        remoteMediaClient.load(mediaInfo, true, 0);
-                        break;
-                }
+
             }
         });
         return rootView;
@@ -215,7 +241,7 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         }
     }
 
-    private void initializeMediaPlayer() {
+    /*private void initializeMediaPlayer() {
         mediaPlayer = new MediaPlayer();
 
         mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
@@ -224,65 +250,15 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
                 Log.i("Buffering", "" + percent);
             }
         });
-    }
+    }*/
 
-    public void startPlaying(Uri audio) {
-
-        try {
-
-            Toast.makeText(getApplicationContext(),
-                    "Conectando con la radio, espere unos segundos...",
-                    Toast.LENGTH_LONG).show();
-
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(getActivity(), audio);
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
-                public void onPrepared(MediaPlayer mp) {
-
-                    mediaPlayer.start();
-                    //Cambio el botón a pause
-                    buttonStreaming.setEnabled(true);
-                }
-            });
-
-            mediaPlayer.prepareAsync();
-
-        } catch (IllegalArgumentException | SecurityException
-                | IllegalStateException | IOException e) {
-            Toast.makeText(getApplicationContext(),
-                    "Error al conectar con la radio", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-    public void stopPlaying() {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            initializeMediaPlayer();
-            buttonStreaming.setEnabled(true);
-        }
-    }
-
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mp.start();
-        mediaController.setMediaPlayer(this);
-        mediaController.setAnchorView(getActivity().findViewById(R.id.fragment_detalle));
-        mediaController.setEnabled(true);
-        mediaController.show();
-    }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         return false;
     }
 
-    @Override
+  /*  @Override
     public void onStop() {
         //TODO: Cuando entra aquí el mediaController es nulo :S
         //mediaController.hide();
@@ -293,66 +269,8 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
             Log.d("", "Error en mediaPlayer.stop()");
         }
         super.onStop();
-    }
+    }*/
 
-    @Override
-    public void start() {
-        mediaPlayer.start();
-    }
-
-    @Override
-    public void pause() {
-        mediaPlayer.pause();
-    }
-
-    @Override
-    public int getDuration() {
-        return mediaPlayer.getDuration();
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        try {
-            return mediaPlayer.getCurrentPosition();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    @Override
-    public void seekTo(int pos) {
-        mediaPlayer.seekTo(pos);
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return mediaPlayer.isPlaying();
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
 
     private MediaBrowserCompat.ConnectionCallback mMediaBrowserCompatConnectionCallback = new MediaBrowserCompat.ConnectionCallback() {
 
@@ -360,16 +278,25 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         public void onConnected() {
             super.onConnected();
             try {
-
+                Log.d("", "Llamada a onconnect()");
+                //if (!isPlaying) {
                 final Uri audio = Uri.parse(URLAudio);
                 mMediaControllerCompat = new MediaControllerCompat(getActivity(), mMediaBrowserCompat.getSessionToken());
                 mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
                 getActivity().setSupportMediaController(mMediaControllerCompat);
+                Log.d("Llamada a getactivit()", audio.toString() + bundleGlobal.toString());
                 getActivity().getSupportMediaController().getTransportControls().playFromUri(audio, bundleGlobal);
+                //}
 
             } catch (RemoteException e) {
 
             }
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            super.onConnectionFailed();
+            Log.d("Fallo", "onConnectionFailed");
         }
     };
 
@@ -387,8 +314,12 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
                     mCurrentState = STATE_PLAYING;
                     break;
                 }
-                case PlaybackStateCompat.STATE_PAUSED: {
+               /* case PlaybackStateCompat.STATE_PAUSED: {
                     mCurrentState = STATE_PAUSED;
+                    break;
+                }*/
+                case PlaybackStateCompat.STATE_STOPPED: {
+                    mCurrentState = STATE_STOPPED;
                     break;
                 }
             }
@@ -430,4 +361,6 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
             }
         }
     };*/
+
+
 }

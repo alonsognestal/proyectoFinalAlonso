@@ -107,6 +107,23 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat implements
         }
 
         @Override
+        public void onStop() {
+            super.onStop();
+
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+                setMediaPlaybackState(PlaybackStateCompat.STATE_STOPPED);
+                try {
+                    showPausedNotification();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
         public void onPlayFromUri(Uri uri, Bundle extras) {
             super.onPlayFromUri(uri, extras);
 

@@ -53,6 +53,7 @@ import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.google.android.gms.cast.framework.media.CastMediaOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -98,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.navigation_view);
         CastContext castContext = CastContext.getSharedInstance(this);
+        CastMediaOptions mediaOptions = new CastMediaOptions.Builder()
+                .setNotificationOptions(null)
+                .build();
         // Añado toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -294,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             invalidateOptionsMenu();
             mCastSession = mSessionManager.getCurrentCastSession();
             Aplicacion.setmCastSession(mCastSession);
-
+            //Cargarme aquí la notificación
         }
 
         @Override
