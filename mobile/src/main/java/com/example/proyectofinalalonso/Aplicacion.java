@@ -45,6 +45,8 @@ public class Aplicacion extends Application {
     private static DatabaseReference generosReference; //Referencia a la base de datos de géneros
     private static DatabaseReference radiosReference; //Referencia a la base de datos de emisoras de radio
     private static DatabaseReference noticiasReference; //Referencia a la base de datos de noticias
+    private static DatabaseReference radiosConPodcastReference; //Referencia a la base de datos de emisoras de radio con podcast
+
     private static Context context;
     private FirebaseAuth auth;
     private static RequestQueue colaPeticiones;
@@ -73,6 +75,10 @@ public class Aplicacion extends Application {
 
     public static DatabaseReference getItemsRadioReference() {
         return radiosReference;
+    }
+
+    public static DatabaseReference getRadiosConPodcastReference() {
+        return radiosConPodcastReference;
     }
 
     public static Context getAppContext() {
@@ -194,6 +200,40 @@ public class Aplicacion extends Application {
             }
         });
         return noticiasReference;
+
+    }
+
+    //Método público para obtener la referencia de la BBDD de las emisoras de radio
+    public Query obtenerReferenciaEmisoras() {
+        //final ArrayList<EmisoraRadio> lista = new ArrayList<EmisoraRadio>();
+        FirebaseDatabase secondDatabase = FirebaseDatabase.getInstance();
+        //Importante poner el keepSynced(True) para obtener siempre la última información en remoto
+        secondDatabase.getReference(RADIOS).keepSynced(true);
+        radiosReference = secondDatabase.getReference(RADIOS);
+        Query query = radiosReference.orderByChild("id");
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        postSnapshot.child("Podcast").getChildren();
+                        EmisoraRadio emisora = postSnapshot.getValue(EmisoraRadio.class);
+                        System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        //secondDatabase.getReference().setValue(ServerValue.TIMESTAMP);
+        return query;
 
     }
 

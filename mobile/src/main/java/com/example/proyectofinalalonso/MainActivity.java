@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
 
 import android.support.v4.app.Fragment;
@@ -60,6 +61,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import static android.R.attr.description;
+import static android.R.id.tabs;
 
 /**
  * Created by Alonso on 01/09/2017.
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     FrameLayout simpleFrameLayout;
     TabLayout tabLayout;
+    private AppBarLayout appBarLayout;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private static final int ID_NOTIFICACION = 1;
@@ -92,12 +95,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SessionManager mSessionManager;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.navigation_view);
+
         CastContext castContext = CastContext.getSharedInstance(this);
         CastMediaOptions mediaOptions = new CastMediaOptions.Builder()
                 .setNotificationOptions(null)
@@ -122,12 +126,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TabLayout.Tab thirdTab = tabLayout.newTab();
         thirdTab.setText("RADIO EN DIRECTO");
         tabLayout.addTab(thirdTab);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         // Navigation Drawer
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -158,7 +172,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 FragmentManager fm = getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.simpleFrameLayout, fragment);
+                ft.hide(getSupportFragmentManager().findFragmentById(R.id.simpleFrameLayout));
+                ft.add(R.id.simpleFrameLayout, fragment);
+                ft.addToBackStack("pila");
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 ft.commit();
             }
@@ -221,6 +237,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }*/
 
         //mMediaBrowserCompat.disconnect();
+    }
+
+    public void mostrarElementos(boolean mostrar) {
+//        appBarLayout.setExpanded(mostrar);
+        toggle.setDrawerIndicatorEnabled(mostrar);
+        if (mostrar) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            tabLayout.setVisibility(View.VISIBLE);
+        } else {
+            tabLayout.setVisibility(View.GONE);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
     }
 
     @Override
@@ -342,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        mostrarElementos(true);
         mSessionManager.addSessionManagerListener(mSessionManagerListener);
         mCastSession = mSessionManager.getCurrentCastSession();
         Aplicacion.setmCastSession(mCastSession);

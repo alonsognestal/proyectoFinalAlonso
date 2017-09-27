@@ -20,6 +20,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 import butterknife.ButterKnife;
 
@@ -35,6 +36,7 @@ public class PodcastActivity extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter adapter;
+    private Query query;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,19 +46,20 @@ public class PodcastActivity extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_podcast, container, false);
+        View rootView = inflater.inflate(R.layout.activity_listado_radios_con_podcast, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 2); //2 columnas
+        layoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 1); //2 columnas
         if (!comprobarGooglePlayServices()) {
             Toast.makeText(getActivity(), "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
         ButterKnife.bind(getActivity());
         Aplicacion app = (Aplicacion) getActivity().getApplicationContext();
         //Obtengo los elementos de la referencia de la base de datos
-        databaseReference = app.getItemsReference();
+        query = app.obtenerReferenciaEmisoras();
+        databaseReference = app.getItemsRadioReference();
         //Se los paso al adaptador para que los muestre
-        AdaptadorRadio adapter = new AdaptadorRadio(R.layout.content_podcast,getAppContext(), databaseReference);
+        AdaptadorListadoPodcasts adapter = new AdaptadorListadoPodcasts(R.layout.content_listado_radios_con_podcast,getAppContext(), databaseReference.orderByChild("TienePodcast").equalTo(true));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         return rootView;

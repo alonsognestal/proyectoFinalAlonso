@@ -97,6 +97,7 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
     private boolean isPlaying;
     private Button audioButton;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +105,7 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         mMediaBrowserCompat.disconnect();
     }
 
@@ -206,7 +208,14 @@ public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTou
         return rootView;
 
     }
-
+    @Override
+    public void onResume() {
+        RadioActivity detalleFragment = (RadioActivity) getFragmentManager().findFragmentById(R.id.fragment_detalle);
+        if (detalleFragment == null) {
+            ((MainActivity) getActivity()).mostrarElementos(false);
+        }
+        super.onResume();
+    }
 
     private void initializeVolume(View rootView) {
         try {

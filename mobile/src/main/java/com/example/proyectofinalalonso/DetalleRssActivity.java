@@ -74,6 +74,14 @@ public class DetalleRssActivity extends Fragment {
         listAdapter.notifyDataSetChanged();
         return rootView;
     }
+    @Override
+    public void onResume() {
+        RadioActivity detalleFragment = (RadioActivity) getFragmentManager().findFragmentById(R.id.fragment_detalle);
+        if (detalleFragment == null) {
+            ((MainActivity) getActivity()).mostrarElementos(false);
+        }
+        super.onResume();
+    }
 
     private HashMap initData(ArrayList<String> headlines, ArrayList<String> links) {
 

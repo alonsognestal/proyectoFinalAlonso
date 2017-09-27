@@ -93,7 +93,7 @@ public class AdaptadorNews extends FirebaseRecyclerAdapter<Noticia, AdaptadorNew
 
         FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.simpleFrameLayout, fragment);
+        ft.replace(R.id.simpleFrameLayout, fragment).addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
     }

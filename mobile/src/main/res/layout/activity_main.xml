@@ -22,7 +22,6 @@
         app:tabIndicatorColor="#f00"
         app:tabSelectedTextColor="#f00"
         app:tabTextColor="#000" />
-
     <FrameLayout
         android:id="@+id/simpleFrameLayout"
         android:layout_width="match_parent"

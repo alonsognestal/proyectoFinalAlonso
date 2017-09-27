@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,7 +53,7 @@ public class RadioActivity extends Fragment {
         //Obtengo los elementos de la referencia de la base de datos
         databaseReference = app.getItemsReference();
         //Se los paso al adaptador para que los muestre
-        AdaptadorRadio adapter = new AdaptadorRadio(R.layout.content_radio,getAppContext(), databaseReference);
+        AdaptadorRadio adapter = new AdaptadorRadio(R.layout.content_radio, getAppContext(), databaseReference);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
