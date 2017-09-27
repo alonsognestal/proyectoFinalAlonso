@@ -27,7 +27,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Alonso on 02/09/2017.
  */
 
-public class ListadoPodcastsPorRadio extends Fragment {
+public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
@@ -64,18 +64,9 @@ public class ListadoPodcastsPorRadio extends Fragment {
             rss = listadoPodcasts.get(key).toString();
             ObtenerPodcast getXML = new ObtenerPodcast(rss);
             getXML.execute();
-            links = getXML.getLinks();
-            outer.add(getXML.getLinks());
-            descriptions = getXML.getDescription();
-            outer.add(getXML.getDescription());
-            ownImages = getXML.getOwnImages();
-            outer.add(getXML.getOwnImages());
-            durations = getXML.getDuration();
-            outer.add(getXML.getDuration());
-            titles = getXML.getTitle();
-            outer.add(getXML.getTitle());
-            images = getXML.getImages();
-            outer.add(getXML.getImages());
+
+            //Hacer esto en el postexecute
+
             i++;
         }
 
@@ -118,4 +109,9 @@ public class ListadoPodcastsPorRadio extends Fragment {
         return true;
     }
 
+    //Aquí recibo el resultado del onPostExecute() del hilo secundario
+    @Override
+    public void processFinish(ArrayList<ArrayList<String>> outer) {
+
+    }
 }

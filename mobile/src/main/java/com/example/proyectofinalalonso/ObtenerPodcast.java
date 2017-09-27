@@ -1,5 +1,6 @@
 package com.example.proyectofinalalonso;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.text.Html;
 
@@ -14,12 +15,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import static android.R.attr.description;
+import static android.R.attr.y;
 
 /**
  * Created by Alonso on 13/09/2017.
  */
 
-public class ObtenerPodcast extends AsyncTask {
+public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayList<String>>> {
     URL url;
     ArrayList<String> ownImages = new ArrayList();
     ArrayList<String> links = new ArrayList();
@@ -28,9 +30,16 @@ public class ObtenerPodcast extends AsyncTask {
     ArrayList<String> durations = new ArrayList();
     ArrayList<String> titles = new ArrayList();
     String rss = "";
+    ProgressDialog dialog;
+    public AsyncResponse delegate = null;
 
     public ObtenerPodcast(String rss) {
         this.rss = rss;
+    }
+
+    public ObtenerPodcast(AsyncResponse delegate)
+    {
+        this.delegate = delegate;
     }
 
     //Getters
@@ -59,10 +68,23 @@ public class ObtenerPodcast extends AsyncTask {
     }
 
     @Override
-    protected Object doInBackground(Object[] objects) {
-        // Initializing instance variables
-        String descripcion = "";
+    protected void onPreExecute() {
+        dialog.setMessage("Cargando datos, por favor espere");
+        dialog.show();
+    }
 
+    @Override
+    protected void onProgressUpdate(Integer ... y){
+        super.onProgressUpdate(y);
+    }
+
+    @Override
+    protected ArrayList<ArrayList<String>> doInBackground(Void ... a) {
+        // Initializing instance variables
+
+        String descripcion = "";
+        Integer cont = 0;
+        ArrayList<ArrayList<String>> outer = new ArrayList<ArrayList<String>>();
         try {
             url = new URL(rss);
 
@@ -85,7 +107,7 @@ public class ObtenerPodcast extends AsyncTask {
 
             // Returns the type of current event: START_TAG, END_TAG, etc..
             int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+            while (eventType != XmlPullParser.END_DOCUMENT && cont<10) {
                 if (eventType == XmlPullParser.START_TAG) {
                  /*   if (xpp.getName().equalsIgnoreCase("itunes:image"))
                     {
@@ -123,6 +145,7 @@ public class ObtenerPodcast extends AsyncTask {
                 }
 
                 eventType = xpp.next(); //move to next element
+                cont++;
             }
 
         } catch (MalformedURLException e) {
@@ -133,16 +156,32 @@ public class ObtenerPodcast extends AsyncTask {
             e.printStackTrace();
         }
 
-        return titles;
+
+        outer.add(links);
+
+        outer.add(descriptions);
+
+        outer.add(ownImages);
+
+        outer.add(durations);
+
+        outer.add(titles);
+
+        outer.add(images);
+
+        return outer;
     }
 
-    @Override
-    protected void onPreExecute() {
-    }
+
 
     @Override
-    protected void onPostExecute(Object o) {
-
+    protected void onPostExecute(ArrayList<ArrayList<String>> outer) {
+        //Recoger todos los arrays una vez finalizado tudo el proceso
+        super.onPostExecute(outer);
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+            delegate.processFinish(outer);
+        }
     }
 
     public InputStream getInputStream(URL url) {
