@@ -21,23 +21,26 @@ import java.util.HashMap;
 import butterknife.ButterKnife;
 
 import static com.example.proyectofinalalonso.Aplicacion.PLAY_SERVICES_RESOLUTION_REQUEST;
+import static com.example.proyectofinalalonso.Aplicacion.listadoGlobalPodcasts;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 02/09/2017.
  */
 
-public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
+public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter adapter;
     private Query query;
+    ArrayList<ArrayList<String>> listado;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -45,7 +48,7 @@ public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
         Bundle bundle = this.getArguments();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new GridLayoutManager(getApplicationContext(),1);
+        layoutManager = new GridLayoutManager(getApplicationContext(), 1);
         final String idEmisora = bundle.getString("idEmisora");
         final String imagen = bundle.getString("imagen");
         String URLAudio = bundle.getString("URLAudio");
@@ -53,21 +56,27 @@ public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
         final String genero = bundle.getString("genero");
         Integer i = 0;
         HashMap<String, Object> listadoPodcasts = (HashMap<String, Object>) bundle.getSerializable("podcast");
-        ArrayList<ArrayList<String>> outer = new ArrayList<ArrayList<String>>();
+        listado = new ArrayList<ArrayList<String>>();
         ArrayList<String> ownImages = new ArrayList<>();
         ArrayList<String> links = new ArrayList<>();
         ArrayList<String> durations = new ArrayList<>();
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<String> descriptions = new ArrayList<>();
         ArrayList<String> images = new ArrayList<>();
+        Aplicacion.listadoGlobalPodcasts = new ArrayList<ArrayList<String>>();
+        if (!Aplicacion.listadoGlobalPodcasts.isEmpty())
+            Aplicacion.listadoGlobalPodcasts.clear();
+
         for (Object key : listadoPodcasts.keySet()) {
-            rss = listadoPodcasts.get(key).toString();
-            ObtenerPodcast getXML = new ObtenerPodcast(rss);
-            getXML.execute();
+            while (i < 1) {
+                rss = listadoPodcasts.get(key).toString();
+                ObtenerPodcast getXML = new ObtenerPodcast(rss, getApplicationContext());
+                getXML.execute();
 
-            //Hacer esto en el postexecute
+                //Hacer esto en el postexecute
 
-            i++;
+                i++;
+            }
         }
 
         String textoGenero = bundle.getString("textoGenero");
@@ -75,13 +84,15 @@ public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
             Toast.makeText(getActivity(), "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
         ButterKnife.bind(getActivity());
-        Aplicacion app = new Aplicacion(textoGenero);
+        //Aplicacion app = new Aplicacion(textoGenero);
         //app = (Aplicacion) getApplicationContext();
-        app.setGenero(textoGenero);
+       /* app.setGenero(textoGenero);
         query = app.obtenerReferenciaDatabaseEmisoras();
-        databaseReference = app.getRadiosConPodcastReference();
+        databaseReference = app.getRadiosConPodcastReference();*/
+        while (Aplicacion.haAcabadoHiloSecundario == false) {
 
-        AdaptadorPodcastsPorRadio adapter = new AdaptadorPodcastsPorRadio(getApplicationContext(), outer);
+        }
+        AdaptadorPodcastsPorRadio adapter = new AdaptadorPodcastsPorRadio(getApplicationContext(), listadoGlobalPodcasts);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         return rootView;
@@ -96,6 +107,7 @@ public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
         }
         super.onResume();
     }
+
     private boolean comprobarGooglePlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -112,6 +124,6 @@ public class ListadoPodcastsPorRadio extends Fragment implements AsyncResponse{
     //Aquí recibo el resultado del onPostExecute() del hilo secundario
     @Override
     public void processFinish(ArrayList<ArrayList<String>> outer) {
-
+        listado = outer;
     }
 }

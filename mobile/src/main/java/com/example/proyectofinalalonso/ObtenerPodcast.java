@@ -1,6 +1,7 @@
 package com.example.proyectofinalalonso;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.text.Html;
 
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 
 import static android.R.attr.description;
 import static android.R.attr.y;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 13/09/2017.
@@ -26,15 +28,20 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
     ArrayList<String> ownImages = new ArrayList();
     ArrayList<String> links = new ArrayList();
     ArrayList<String> descriptions = new ArrayList();
-    ArrayList<String> images = new ArrayList();
+   // ArrayList<String> images = new ArrayList();
     ArrayList<String> durations = new ArrayList();
-    ArrayList<String> titles = new ArrayList();
+    //ArrayList<String> titles = new ArrayList();
     String rss = "";
-    ProgressDialog dialog;
+    //Boolean haAcabadoHiloSecundario = false;
+    //Aplicacion app = new Aplicacion();
+
+    private Context contexto;
+//    ProgressDialog dialog = new ProgressDialog(contexto);
     public AsyncResponse delegate = null;
 
-    public ObtenerPodcast(String rss) {
+    public ObtenerPodcast(String rss, Context contexto) {
         this.rss = rss;
+        this.contexto = contexto;
     }
 
     public ObtenerPodcast(AsyncResponse delegate)
@@ -55,22 +62,22 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
         return descriptions;
     }
 
-    public ArrayList<String> getImages() {
+   /* public ArrayList<String> getImages() {
         return images;
-    }
+    }*/
 
     public ArrayList<String> getDuration() {
         return durations;
     }
 
-    public ArrayList<String> getTitle() {
+    /*public ArrayList<String> getTitle() {
         return titles;
-    }
+    }*/
 
     @Override
     protected void onPreExecute() {
-        dialog.setMessage("Cargando datos, por favor espere");
-        dialog.show();
+       // dialog.setMessage("Cargando datos, por favor espere");
+        //dialog.show();
     }
 
     @Override
@@ -107,13 +114,13 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
 
             // Returns the type of current event: START_TAG, END_TAG, etc..
             int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT && cont<10) {
+            while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                  /*   if (xpp.getName().equalsIgnoreCase("itunes:image"))
                     {
                         images.add(xpp.nextText());
                     }*/
-                    if (insideItem == false) {
+                   /* if (insideItem == false) {
 
                         if (xpp.getName().equalsIgnoreCase("title")) {
                             titles.add(xpp.nextText());
@@ -122,9 +129,10 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
                         {
                             images.add(xpp.getAttributeValue(null, "href"));
                         }
-                    }
+                    }*/
                     if (xpp.getName().equalsIgnoreCase("item")) {
                         insideItem = true;
+                        cont++;
                     } else if (xpp.getName().equalsIgnoreCase("itunes:image")) {
                         if (insideItem)
                             ownImages.add(xpp.getAttributeValue(null, "href")); //extract the headline
@@ -145,7 +153,7 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
                 }
 
                 eventType = xpp.next(); //move to next element
-                cont++;
+                /*cont++;*/
             }
 
         } catch (MalformedURLException e) {
@@ -165,10 +173,12 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
 
         outer.add(durations);
 
-        outer.add(titles);
+       /* outer.add(titles);
 
-        outer.add(images);
+        outer.add(images);*/
 
+        Aplicacion.haAcabadoHiloSecundario = true;
+        Aplicacion.listadoGlobalPodcasts = outer;
         return outer;
     }
 
@@ -177,11 +187,11 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
     @Override
     protected void onPostExecute(ArrayList<ArrayList<String>> outer) {
         //Recoger todos los arrays una vez finalizado tudo el proceso
-        super.onPostExecute(outer);
-        if (dialog.isShowing()) {
-            dialog.dismiss();
-            delegate.processFinish(outer);
-        }
+
+        /*if (dialog.isShowing()) {
+            dialog.dismiss();*/
+            //delegate.processFinish(outer);
+        //}
     }
 
     public InputStream getInputStream(URL url) {

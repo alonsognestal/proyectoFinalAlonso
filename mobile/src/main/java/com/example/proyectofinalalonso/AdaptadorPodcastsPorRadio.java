@@ -27,6 +27,8 @@ import java.util.Vector;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.example.proyectofinalalonso.R.id.imagen;
+
 /**
  * Created by Alonso on 02/09/2017.
  */
@@ -48,23 +50,33 @@ public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPod
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagen;
         public TextView descripcion;
+        public TextView url;
 
         public ViewHolder(View itemView) {
             super(itemView);
-           /* imagen = (ImageView) itemView.findViewById(R.id.portada);
+            imagen = (ImageView) itemView.findViewById(R.id.imagen);
             imagen.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            descripcion = (TextView) itemView.findViewById(R.id.titulo);*/
+            descripcion = (TextView) itemView.findViewById(R.id.descripcion);
+            url = (TextView) itemView.findViewById(R.id.url);
         }
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup v, int viewType) { // Inflamos la vista desde el xml
-       /* View v = inflador.inflate(R.layout.elemento_selector, null);*/
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) { // Inflamos la vista desde el xml
+       View v = inflador.inflate(R.layout.elemento_podcast, null);
         return new ViewHolder(v);
     } // Usando como base el ViewHolder y lo personalizamos
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int posicion) {
+        ArrayList<String> links = outer.get(posicion);
+        if (inner.size()>0)
+        {
+            holder.url.setText(inner.get(0));
+            holder.descripcion.setText(inner.get(1));
+            Glide.with(contexto).load(inner.get(2)).into(holder.imagen);
+        }
+
        /* Libro libro = vectorLibros.elementAt(posicion);
         holder.portada.setImageResource(libro.recursoImagen);
         holder.titulo.setText(libro.titulo);*/

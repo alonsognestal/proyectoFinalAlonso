@@ -55,6 +55,10 @@ public class Aplicacion extends Application {
     private static CastSession mCastSession;
     private static SessionManager mSessionManager;
 
+    static boolean haAcabadoHiloSecundario = false;
+    static ArrayList<ArrayList<String>> listadoGlobalPodcasts;
+
+
     public Aplicacion() {
     }
 
@@ -110,6 +114,15 @@ public class Aplicacion extends Application {
     public static SessionManager getmSessionManager() {
         return Aplicacion.mSessionManager;
     }
+   /* public static Boolean getHaAcabadoHiloSecun()
+    {
+        return haAcabadoHiloSecundario;
+    }
+
+    public void setHaAcabadoHiloSecundario(Boolean haAcabado)
+    {
+        this.haAcabadoHiloSecundario = haAcabado;
+    }*/
 
     @Override
     public void onCreate() {
