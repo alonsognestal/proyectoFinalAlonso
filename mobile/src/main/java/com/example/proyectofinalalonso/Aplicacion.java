@@ -57,7 +57,8 @@ public class Aplicacion extends Application {
 
     static boolean haAcabadoHiloSecundario = false;
     static ArrayList<ArrayList<String>> listadoGlobalPodcasts;
-
+    static ArrayList<String> listadoinner;
+    private AdaptadorPodcastsPorRadio2 adaptador;
 
     public Aplicacion() {
     }

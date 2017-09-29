@@ -1,17 +1,9 @@
 package com.example.proyectofinalalonso;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ClipDrawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.session.MediaSessionManager;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -19,72 +11,43 @@ import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
-import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManager;
-import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import static android.R.attr.bitmap;
-import static android.R.attr.category;
 import static com.example.proyectofinalalonso.Aplicacion.bitmap1;
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 07/09/2017.
  */
 
-public class DetallesEmisoraRadioActivity extends Fragment implements View.OnTouchListener {
+public class DetallePodcastActivity extends Fragment implements View.OnTouchListener {
 
     TextView txtView;
     ImageView imgView;
     boolean isPlay = false;
     ToggleButton buttonStreaming;
     String URLAudio = "";
-
+    //private static final int STATE_PAUSED = 0;
     private static final int STATE_PLAYING = 1;
     private static final int STATE_STOPPED = 0;
-
+    //private static final int STATE_STOP = 2;
     Bundle bundleGlobal = new Bundle();
     private int mCurrentState;
 

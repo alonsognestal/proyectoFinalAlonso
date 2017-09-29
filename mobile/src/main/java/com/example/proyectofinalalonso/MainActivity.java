@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FrameLayout simpleFrameLayout;
     TabLayout tabLayout;
     private AppBarLayout appBarLayout;
-    private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
+    private static DrawerLayout drawer;
+    private static ActionBarDrawerToggle toggle;
     private static final int ID_NOTIFICACION = 1;
     private NotificationManager notificManager;
     private NotificationCompat.Builder notificacion;

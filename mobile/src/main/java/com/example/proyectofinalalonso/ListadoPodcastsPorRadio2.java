@@ -28,7 +28,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Alonso on 20/08/2017.
  */
 
-public class ListadoPodcastsPorRadio2 extends Fragment {
+public class ListadoPodcastsPorRadio2 extends Fragment implements RecyclerViewClickListener{
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
@@ -36,14 +36,18 @@ public class ListadoPodcastsPorRadio2 extends Fragment {
     private Query query;
     ArrayList<String> listado;
     Object podcast1 = new Object();
-    HashMap<String,Object> podcast2 = new HashMap<String,Object>();
-    HashMap<String,Object> podcast3 = new HashMap<String,Object>();
-    HashMap<String,Object> podcast4 = new HashMap<String,Object>();
+    HashMap<String, Object> podcast2 = new HashMap<String, Object>();
+    HashMap<String, Object> podcast3 = new HashMap<String, Object>();
+    HashMap<String, Object> podcast4 = new HashMap<String, Object>();
     Integer cont = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+    }
+    @Override
+    public void recyclerViewListClicked(View v, int position){
 
     }
 
@@ -77,11 +81,13 @@ public class ListadoPodcastsPorRadio2 extends Fragment {
         query = app.obtenerReferenciaEmisoras();
         databaseReference = app.getItemsRadioReference();
         //Se los paso al adaptador para que los muestre
-        AdaptadorPodcastsPorRadio2 adapter = new AdaptadorPodcastsPorRadio2(getAppContext(), podcast1);
+        AdaptadorPodcastsPorRadio2 adapter = new AdaptadorPodcastsPorRadio2(getAppContext(), podcast1, this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+
         return rootView;
     }
+
 
     private boolean comprobarGooglePlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());

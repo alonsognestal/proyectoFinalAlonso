@@ -11,32 +11,32 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imgRadio"
+            android:id="@+id/imagen"
             android:layout_width="150dp"
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
 
         <TextView
-            android:id="@+id/txtRadio"
+            android:id="@+id/idPodcast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
             android:layout_weight="0.70"
-            android:layout_toRightOf="@id/imgRadio"
+            android:layout_toRightOf="@id/imagen"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         <TextView
-            android:id="@+id/txtURLAudio"
+            android:id="@+id/rss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
             android:layout_weight="0.70"
-            android:layout_below="@id/imgRadio"
+            android:layout_below="@id/idPodcast"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         <TextView
@@ -47,7 +47,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
             android:layout_weight="0.70"
-            android:layout_toRightOf="@id/txtRadio"
+            android:layout_toRightOf="@id/rss"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
 

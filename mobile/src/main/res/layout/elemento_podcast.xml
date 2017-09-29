@@ -20,7 +20,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
         android:layout_weight="0.70"
-
+        android:textColor="@color/tw__composer_red"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <TextView
@@ -32,6 +32,7 @@
         android:layout_marginTop="15dp"
         android:layout_weight="0.70"
         android:layout_below="@id/idPodcast"
+        android:textColor="@color/tw__composer_blue"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
 </RelativeLayout>

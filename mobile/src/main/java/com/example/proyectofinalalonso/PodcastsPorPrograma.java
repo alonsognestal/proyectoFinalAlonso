@@ -1,5 +1,6 @@
 package com.example.proyectofinalalonso;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,15 +21,17 @@ import java.util.HashMap;
 
 import butterknife.ButterKnife;
 
+import static android.R.attr.key;
 import static com.example.proyectofinalalonso.Aplicacion.PLAY_SERVICES_RESOLUTION_REQUEST;
 import static com.example.proyectofinalalonso.Aplicacion.listadoGlobalPodcasts;
+import static com.example.proyectofinalalonso.Aplicacion.listadoinner;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Alonso on 02/09/2017.
  */
 
-public class PodcastsPorPrograma extends Fragment implements AsyncResponse {
+public class PodcastsPorPrograma extends Activity implements AsyncResponse,RecyclerViewClickListener {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
@@ -39,51 +42,39 @@ public class PodcastsPorPrograma extends Fragment implements AsyncResponse {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_podcasts_por_emisora, container, false);
-        Bundle bundle = this.getArguments();
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_view);
+        setContentView(R.layout.activity_podcasts_por_emisora);
+        //View rootView = inflater.inflate(R.layout.activity_podcasts_por_emisora, container, false);
+        Bundle bundle = new Bundle();
+        bundle = getIntent().getExtras();
+        recyclerView = (RecyclerView) findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new GridLayoutManager(getApplicationContext(), 1);
-        final String idEmisora = bundle.getString("idEmisora");
+        final String idPodcast = bundle.getString("idPodcast");
         final String imagen = bundle.getString("imagen");
-        String URLAudio = bundle.getString("URLAudio");
-        String rss = "";
-        final String genero = bundle.getString("genero");
+        String rss = bundle.getString("rss");
+
         Integer i = 0;
-        HashMap<String, Object> listadoPodcasts = (HashMap<String, Object>) bundle.getSerializable("podcast");
+        //HashMap<String, Object> listadoPodcasts = (HashMap<String, Object>) bundle.getSerializable("podcast");
         listado = new ArrayList<ArrayList<String>>();
         ArrayList<String> ownImages = new ArrayList<>();
         ArrayList<String> links = new ArrayList<>();
         ArrayList<String> durations = new ArrayList<>();
-        ArrayList<String> titles = new ArrayList<>();
         ArrayList<String> descriptions = new ArrayList<>();
-        ArrayList<String> images = new ArrayList<>();
         Aplicacion.listadoGlobalPodcasts = new ArrayList<ArrayList<String>>();
-        if (!Aplicacion.listadoGlobalPodcasts.isEmpty())
+        listadoinner= new ArrayList<String>();
+        if (!Aplicacion.listadoGlobalPodcasts.isEmpty()) {
             Aplicacion.listadoGlobalPodcasts.clear();
-
-        for (Object key : listadoPodcasts.keySet()) {
-            while (i < 1) {
-                rss = listadoPodcasts.get(key).toString();
-                ObtenerPodcast getXML = new ObtenerPodcast(rss, getApplicationContext());
-                getXML.execute();
-
-                //Hacer esto en el postexecute
-
-                i++;
-            }
         }
+        if (!listadoinner.isEmpty()) {
+            listadoinner.clear();
+        }
+        ObtenerPodcast getXML = new ObtenerPodcast(rss, getApplicationContext());
+        getXML.execute();
 
-        String textoGenero = bundle.getString("textoGenero");
         if (!comprobarGooglePlayServices()) {
-            Toast.makeText(getActivity(), "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
-        ButterKnife.bind(getActivity());
+        ButterKnife.bind(this);
         //Aplicacion app = new Aplicacion(textoGenero);
         //app = (Aplicacion) getApplicationContext();
        /* app.setGenero(textoGenero);
@@ -92,29 +83,29 @@ public class PodcastsPorPrograma extends Fragment implements AsyncResponse {
         while (Aplicacion.haAcabadoHiloSecundario == false) {
 
         }
-        AdaptadorPodcastsPorRadio adapter = new AdaptadorPodcastsPorRadio(getApplicationContext(), listadoGlobalPodcasts);
+        AdaptadorPodcastsPorPrograma adapter = new AdaptadorPodcastsPorPrograma(getApplicationContext(), listadoGlobalPodcasts,this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        return rootView;
+        //return rootView;
 
     }
+    @Override
+    public void recyclerViewListClicked(View v, int position){
 
+    }
     @Override
     public void onResume() {
-        RadioActivity detalleFragment = (RadioActivity) getFragmentManager().findFragmentById(R.id.fragment_detalle);
-        if (detalleFragment == null) {
-            ((MainActivity) getActivity()).mostrarElementos(false);
-        }
+        //MainActivity.mostrarElementos(true);
         super.onResume();
     }
 
     private boolean comprobarGooglePlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(), PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-                getActivity().finish();
+                finish();
             }
             return false;
         }
