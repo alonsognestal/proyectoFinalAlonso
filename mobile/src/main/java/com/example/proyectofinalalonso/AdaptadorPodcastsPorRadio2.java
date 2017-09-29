@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,60 +20,59 @@ import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.Vector;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.example.proyectofinalalonso.R.id.imagen;
 
 /**
  * Created by Alonso on 02/09/2017.
  */
 
-public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPodcastsPorRadio.ViewHolder> {
+public class AdaptadorPodcastsPorRadio2 extends RecyclerView.Adapter<AdaptadorPodcastsPorRadio2.ViewHolder> {
     private LayoutInflater inflador;
-    private Context contexto;
-    ArrayList<ArrayList<String>> outer = new ArrayList<ArrayList<String>>();
-    ArrayList<String> inner = new ArrayList<String>();
+    private static Context contexto;
+    //ArrayList<ArrayList<String>> outer = new ArrayList<ArrayList<String>>();
+    //ArrayList<String> inner = new ArrayList<String>();
     private View.OnClickListener onClickListener;
+    Object podcast = new Object();
 
 
-    public AdaptadorPodcastsPorRadio(Context contexto, ArrayList<ArrayList<String>> outer) {
+    public AdaptadorPodcastsPorRadio2(Context contexto, Object podcast) {
         inflador = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.outer = outer;
+        this.podcast = podcast;
         this.contexto = contexto;
     } //Creamos nuestro ViewHolder, con los tipos de elementos a modificar
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagen;
-        public TextView descripcion;
-        public TextView url;
+        public TextView rss;
+        public TextView idPodcast;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imagen = (ImageView) itemView.findViewById(R.id.imagen);
-            imagen.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            descripcion = (TextView) itemView.findViewById(R.id.idPodcast);
-            url = (TextView) itemView.findViewById(R.id.rss);
+            //imagen = (ImageView) itemView.findViewById(R.id.imagen);
+            //imagen.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            rss = (TextView) itemView.findViewById(R.id.rss);
+            idPodcast = (TextView) itemView.findViewById(R.id.idPodcast);
+            imagen = (ImageView)itemView.findViewById(R.id.imagen);
         }
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) { // Inflamos la vista desde el xml
-       View v = inflador.inflate(R.layout.elemento_podcast, null);
+        View v = inflador.inflate(R.layout.elemento_podcast, null);
         return new ViewHolder(v);
     } // Usando como base el ViewHolder y lo personalizamos
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int posicion) {
-        ArrayList<String> links = outer.get(posicion);
-        if (inner.size()>0)
+       /* ArrayList<String> links = outer.get(posicion);*/
+        if (((HashMap)podcast).size()>0)
         {
-            holder.url.setText(inner.get(0));
-            holder.descripcion.setText(inner.get(1));
-            Glide.with(contexto).load(inner.get(2)).into(holder.imagen);
+
+            holder.idPodcast.setText(((HashMap)podcast).get("idPodcast").toString());
+            //holder.rss.setText(((HashMap)podcast).get("rss").toString());
+            Glide.with(contexto).load(((HashMap)podcast).get("imagen")).into(holder.imagen);
         }
 
        /* Libro libro = vectorLibros.elementAt(posicion);
@@ -84,6 +82,7 @@ public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPod
 
     @Override
     public int getItemCount() {
-        return outer.size();
+        return 1;
     }
 }
+

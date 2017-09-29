@@ -4,31 +4,34 @@
 
     <ImageView
         android:id="@+id/imagen"
-        android:layout_width="150dp"
-        android:layout_height="100dp"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true" />
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="false"
+        android:layout_margin="12dp"
+        android:adjustViewBounds="false" />
 
     <TextView
-        android:id="@+id/descripcion"
+        android:id="@+id/idPodcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_weight="0.70"
+
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <TextView
+        android:id="@+id/rss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
         android:layout_weight="0.70"
-        android:layout_toRightOf="@id/imagen"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-    <TextView
-        android:id="@+id/url"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_weight="0.70"
-        android:layout_below="@id/imagen"
+        android:layout_below="@id/idPodcast"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
 </RelativeLayout>

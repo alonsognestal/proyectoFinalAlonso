@@ -93,7 +93,7 @@ public class AdaptadorListadoPodcasts extends FirebaseRecyclerAdapter<EmisoraRad
             extras.putString("genero", currentItem.getCategoria());
             extras.putSerializable("podcast",currentItem.getPodcast());
 
-            Fragment fragment = new ListadoPodcastsPorRadio();
+            Fragment fragment = new ListadoPodcastsPorRadio2();
             fragment.setArguments(extras);
 
             FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();

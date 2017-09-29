@@ -1,13 +1,7 @@
 package com.example.proyectofinalalonso;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,25 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Vector;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.example.proyectofinalalonso.R.id.imagen;
 
 /**
  * Created by Alonso on 02/09/2017.
  */
 
-public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPodcastsPorRadio.ViewHolder> {
+public class AdaptadorPodcastsPorPrograma extends RecyclerView.Adapter<AdaptadorPodcastsPorPrograma.ViewHolder> {
     private LayoutInflater inflador;
     private Context contexto;
     ArrayList<ArrayList<String>> outer = new ArrayList<ArrayList<String>>();
@@ -41,7 +24,7 @@ public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPod
     private View.OnClickListener onClickListener;
 
 
-    public AdaptadorPodcastsPorRadio(Context contexto, ArrayList<ArrayList<String>> outer) {
+    public AdaptadorPodcastsPorPrograma(Context contexto, ArrayList<ArrayList<String>> outer) {
         inflador = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.outer = outer;
         this.contexto = contexto;
@@ -56,8 +39,8 @@ public class AdaptadorPodcastsPorRadio extends RecyclerView.Adapter<AdaptadorPod
             super(itemView);
             imagen = (ImageView) itemView.findViewById(R.id.imagen);
             imagen.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            descripcion = (TextView) itemView.findViewById(R.id.idPodcast);
-            url = (TextView) itemView.findViewById(R.id.rss);
+            descripcion = (TextView) itemView.findViewById(R.id.rss);
+            url = (TextView) itemView.findViewById(R.id.idPodcast);
         }
     }
 
