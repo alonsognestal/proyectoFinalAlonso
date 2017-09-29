@@ -43,7 +43,6 @@ public class PodcastsPorPrograma extends Activity implements AsyncResponse,Recyc
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcasts_por_emisora);
-        //View rootView = inflater.inflate(R.layout.activity_podcasts_por_emisora, container, false);
         Bundle bundle = new Bundle();
         bundle = getIntent().getExtras();
         recyclerView = (RecyclerView) findViewById(R.id.card_recycler_view);
@@ -54,7 +53,6 @@ public class PodcastsPorPrograma extends Activity implements AsyncResponse,Recyc
         String rss = bundle.getString("rss");
 
         Integer i = 0;
-        //HashMap<String, Object> listadoPodcasts = (HashMap<String, Object>) bundle.getSerializable("podcast");
         listado = new ArrayList<ArrayList<String>>();
         ArrayList<String> ownImages = new ArrayList<>();
         ArrayList<String> links = new ArrayList<>();
@@ -75,18 +73,12 @@ public class PodcastsPorPrograma extends Activity implements AsyncResponse,Recyc
             Toast.makeText(this, "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
         ButterKnife.bind(this);
-        //Aplicacion app = new Aplicacion(textoGenero);
-        //app = (Aplicacion) getApplicationContext();
-       /* app.setGenero(textoGenero);
-        query = app.obtenerReferenciaDatabaseEmisoras();
-        databaseReference = app.getRadiosConPodcastReference();*/
         while (Aplicacion.haAcabadoHiloSecundario == false) {
 
         }
         AdaptadorPodcastsPorPrograma adapter = new AdaptadorPodcastsPorPrograma(getApplicationContext(), listadoGlobalPodcasts,this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        //return rootView;
 
     }
     @Override
@@ -95,21 +87,26 @@ public class PodcastsPorPrograma extends Activity implements AsyncResponse,Recyc
     }
     @Override
     public void onResume() {
-        //MainActivity.mostrarElementos(true);
         super.onResume();
     }
 
     private boolean comprobarGooglePlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                finish();
+        try {
+
+            int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+            if (resultCode != ConnectionResult.SUCCESS) {
+                if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                    GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                } else {
+                    finish();
+                }
+                return false;
             }
+            return true;
+        }catch (Exception ex)
+        {
             return false;
         }
-        return true;
     }
 
     //Aquí recibo el resultado del onPostExecute() del hilo secundario

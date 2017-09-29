@@ -3,7 +3,6 @@ package com.example.proyectofinalalonso;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.provider.ContactsContract;
 import android.util.LruCache;
 
 import com.android.volley.RequestQueue;
@@ -18,16 +17,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.firebase.ui.*;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Vector;
 
 /**
  * Created by Alonso on 20/08/2017.
@@ -40,12 +32,10 @@ public class Aplicacion extends Application {
     private String RADIOS = "emisoras";
     private String NOTICIAS = "noticias";
     private String genero;
-    private String nombreEmisora;
 
     private static DatabaseReference generosReference; //Referencia a la base de datos de géneros
     private static DatabaseReference radiosReference; //Referencia a la base de datos de emisoras de radio
     private static DatabaseReference noticiasReference; //Referencia a la base de datos de noticias
-    private static DatabaseReference radiosConPodcastReference; //Referencia a la base de datos de emisoras de radio con podcast
 
     private static Context context;
     private FirebaseAuth auth;
@@ -58,7 +48,7 @@ public class Aplicacion extends Application {
     static boolean haAcabadoHiloSecundario = false;
     static ArrayList<ArrayList<String>> listadoGlobalPodcasts;
     static ArrayList<String> listadoinner;
-    private AdaptadorPodcastsPorRadio2 adaptador;
+    private AdaptadorPodcastsPorRadio adaptador;
 
     public Aplicacion() {
     }
@@ -82,9 +72,6 @@ public class Aplicacion extends Application {
         return radiosReference;
     }
 
-    public static DatabaseReference getRadiosConPodcastReference() {
-        return radiosConPodcastReference;
-    }
 
     public static Context getAppContext() {
         return Aplicacion.context;
@@ -115,15 +102,7 @@ public class Aplicacion extends Application {
     public static SessionManager getmSessionManager() {
         return Aplicacion.mSessionManager;
     }
-   /* public static Boolean getHaAcabadoHiloSecun()
-    {
-        return haAcabadoHiloSecundario;
-    }
 
-    public void setHaAcabadoHiloSecundario(Boolean haAcabado)
-    {
-        this.haAcabadoHiloSecundario = haAcabado;
-    }*/
 
     @Override
     public void onCreate() {
@@ -165,10 +144,10 @@ public class Aplicacion extends Application {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
 
-                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    //System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         EmisoraRadio emisora = postSnapshot.getValue(EmisoraRadio.class);
-                        System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
+                        //System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
 
                     }
                 }
@@ -179,7 +158,7 @@ public class Aplicacion extends Application {
 
             }
         });
-        //secondDatabase.getReference().setValue(ServerValue.TIMESTAMP);
+
         return query;
 
     }
@@ -199,10 +178,10 @@ public class Aplicacion extends Application {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
 
-                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    //System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Noticia noticia = postSnapshot.getValue(Noticia.class);
-                        System.out.println(noticia.getNombre() + " - " + noticia.geturlimagen() + " - " + noticia.getRss());
+                        //System.out.println(noticia.getNombre() + " - " + noticia.geturlimagen() + " - " + noticia.getRss());
 
                     }
                 }
@@ -219,7 +198,7 @@ public class Aplicacion extends Application {
 
     //Método público para obtener la referencia de la BBDD de las emisoras de radio
     public Query obtenerReferenciaEmisoras() {
-        //final ArrayList<EmisoraRadio> lista = new ArrayList<EmisoraRadio>();
+
         FirebaseDatabase secondDatabase = FirebaseDatabase.getInstance();
         //Importante poner el keepSynced(True) para obtener siempre la última información en remoto
         secondDatabase.getReference(RADIOS).keepSynced(true);
@@ -231,11 +210,11 @@ public class Aplicacion extends Application {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
 
-                    System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
+                    //System.out.println("Hay " + dataSnapshot.getChildrenCount() + " emisoras");
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         postSnapshot.child("Podcast").getChildren();
                         EmisoraRadio emisora = postSnapshot.getValue(EmisoraRadio.class);
-                        System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
+                        //System.out.println(emisora.getId() + " - " + emisora.getCategoria() + " - " + emisora.getUrlImagen() + " - " + emisora.getUrlAudio());
 
                     }
                 }
@@ -246,7 +225,6 @@ public class Aplicacion extends Application {
 
             }
         });
-        //secondDatabase.getReference().setValue(ServerValue.TIMESTAMP);
         return query;
 
     }

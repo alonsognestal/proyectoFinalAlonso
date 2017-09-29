@@ -1,14 +1,8 @@
 package com.example.proyectofinalalonso;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -24,12 +18,8 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
-import java.io.InputStream;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.example.proyectofinalalonso.R.id.txtGenero;
 
 /**
  * Created by Alonso on 27/08/2017.
@@ -81,21 +71,25 @@ public class AdaptadorNews extends FirebaseRecyclerAdapter<Noticia, AdaptadorNew
 
         @Override
     public void onClick(View v) {
-        //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
-        int position = getAdapterPosition();
-        Noticia noticia = getItem(position);
+        try {
+            //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
+            int position = getAdapterPosition();
+            Noticia noticia = getItem(position);
+            Bundle extras = new Bundle();
 
-        Bundle extras = new Bundle();
+            extras.putString("rss", noticia.getRss());
+            Fragment fragment = new DetalleRssFragment();
+            fragment.setArguments(extras);
+            FragmentManager fm = ((AppCompatActivity) this.itemView.getContext()).getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.simpleFrameLayout, fragment).addToBackStack(null);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+        }
+        catch (Exception ex)
+        {
 
-        extras.putString("rss", noticia.getRss());
-        Fragment fragment = new DetalleRssActivity();
-        fragment.setArguments(extras);
-
-        FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.simpleFrameLayout, fragment).addToBackStack(null);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        }
     }
 }
 

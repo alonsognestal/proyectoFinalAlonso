@@ -1,10 +1,6 @@
 package com.example.proyectofinalalonso;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,14 +17,9 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.squareup.picasso.Picasso;
-
-import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.example.proyectofinalalonso.R.id.txtGenero;
 
 /**
  * Created by Alonso on 02/09/2017.
@@ -67,7 +58,6 @@ public class AdaptadorListadoRadios extends FirebaseRecyclerAdapter<EmisoraRadio
         holder.txtCategoria.setText(txtCategoria);
         String txtRadio = emisoraRadio.getId();
         holder.txtRadio.setText(txtRadio);
-
         Glide.with(context).load(emisoraRadio.getUrlImagen()).into(holder.imgRadio);
     }
 
@@ -89,32 +79,33 @@ public class AdaptadorListadoRadios extends FirebaseRecyclerAdapter<EmisoraRadio
 
         @Override
         public void onClick(View v) {
-            //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
-            int position = getAdapterPosition();
-            EmisoraRadio currentItem = getItem(position);
-            //Intent intent = new Intent(context, DetallesEmisoraRadioActivity.class);
-            Bundle extras = new Bundle();
-            //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            extras.putString("idEmisora", currentItem.getId());
-            extras.putString("imagen", currentItem.getUrlImagen());
-            extras.putString("URLAudio", currentItem.getUrlAudio());
-            extras.putString("rss", currentItem.getId());
-            extras.putString("genero", currentItem.getCategoria());
+            try {
+                //Al pinchar en una emisora, me lleva a una actividad donde me muestra todos sus datos y un reproductor de música donde se reproduce la emisión online
+                int position = getAdapterPosition();
+                EmisoraRadio currentItem = getItem(position);
+                Bundle extras = new Bundle();
 
-            Fragment fragment = new DetallesEmisoraRadioActivity();
-            fragment.setArguments(extras);
+                extras.putString("idEmisora", currentItem.getId());
+                extras.putString("imagen", currentItem.getUrlImagen());
+                extras.putString("URLAudio", currentItem.getUrlAudio());
+                extras.putString("rss", currentItem.getId());
+                extras.putString("genero", currentItem.getCategoria());
 
-            FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.simpleFrameLayout, fragment).addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.commit();
+                Fragment fragment = new DetallesEmisoraRadioFragment();
+                fragment.setArguments(extras);
+
+                FragmentManager fm = ((AppCompatActivity) this.itemView.getContext()).getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.simpleFrameLayout, fragment).addToBackStack(null);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                ft.commit();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
-    }
-
-    public void setOnItemClickListener(View.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
     }
 
 }

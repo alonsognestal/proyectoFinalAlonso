@@ -29,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void doLogin() {
+        try{
+
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             String name = currentUser.getDisplayName();
@@ -54,6 +56,12 @@ public class LoginActivity extends AppCompatActivity {
             new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
                     new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build()))
                     .setIsSmartLockEnabled(true).build(), RC_SIGN_IN);
+        }
+
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 

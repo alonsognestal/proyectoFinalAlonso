@@ -1,10 +1,6 @@
 package com.example.proyectofinalalonso;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,8 +16,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
-
-import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,7 +43,6 @@ public class AdaptadorRadio extends FirebaseRecyclerAdapter<Genero, AdaptadorRad
     protected void populateViewHolder(EventoViewHolder holder, Genero genero, int position) {
         String txtGenero = genero.getTitulo();
         holder.txtGenero.setText(txtGenero);
-        //new DownloadImageTask((ImageView) holder.imgGenero).execute(genero.getUrl());
         Glide.with(context).load(genero.getUrl()).into(holder.imgGenero);
     }
 
@@ -73,7 +66,7 @@ public class AdaptadorRadio extends FirebaseRecyclerAdapter<Genero, AdaptadorRad
             Context context = Aplicacion.getAppContext();
             Bundle bundle = new Bundle();
             bundle.putString("textoGenero", currentItem.nombre);
-            Fragment fragment = new ListadoRadiosActivity();
+            Fragment fragment = new ListadoRadiosFragment();
             fragment.setArguments(bundle);
 
             FragmentManager fm = ((AppCompatActivity)this.itemView.getContext()).getSupportFragmentManager();

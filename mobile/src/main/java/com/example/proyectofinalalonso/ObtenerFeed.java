@@ -49,8 +49,6 @@ public class ObtenerFeed extends AsyncTask{
     @Override
     protected Object doInBackground(Object[] objects) {
         // Initializing instance variables
-        String descripcion = "";
-
         try {
             url = new URL(rss);
 
@@ -58,20 +56,10 @@ public class ObtenerFeed extends AsyncTask{
             factory.setNamespaceAware(false);
             XmlPullParser xpp = factory.newPullParser();
 
-            // We will get the XML from an input stream
             xpp.setInput(getInputStream(url), "UTF_8");
 
-        /* We will parse the XML content looking for the "<title>" tag which appears inside the "<item>" tag.
-         * However, we should take in consideration that the rss feed name also is enclosed in a "<title>" tag.
-         * As we know, every feed begins with these lines: "<channel><title>Feed_Name</title>...."
-         * so we should skip the "<title>" tag which is a child of "<channel>" tag,
-         * and take in consideration only "<title>" tag which is a child of "<item>"
-         *
-         * In order to achieve this, we will make use of a boolean variable.
-         */
             boolean insideItem = false;
 
-            // Returns the type of current event: START_TAG, END_TAG, etc..
             int eventType = xpp.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
@@ -122,20 +110,6 @@ public class ObtenerFeed extends AsyncTask{
         } catch (IOException e) {
             return null;
         }
-    }
-
-    public String removeHtmlTags(String inStr) {
-        int index=0;
-        int index2=0;
-        while(index!=-1)
-        {
-            index = inStr.indexOf("<");
-            index2 = inStr.indexOf(">", index);
-            if(index!=-1 && index2!=-1){
-                inStr = inStr.substring(0, index).concat(inStr.substring(index2+1, inStr.length()));
-            }
-        }
-        return inStr;
     }
 
 }

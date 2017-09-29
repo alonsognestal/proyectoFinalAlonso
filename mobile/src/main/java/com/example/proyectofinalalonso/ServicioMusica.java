@@ -35,48 +35,56 @@ public class ServicioMusica extends Service implements MediaPlayer.OnPreparedLis
     MediaController mediaController;
     //ToggleButton buttonStreaming;
     private static final int ID_NOTIFICACION_CREAR = 1;
-    @Override public void onCreate() {
-        Toast.makeText(this,"Servicio creado", Toast.LENGTH_SHORT).show();
-        //buttonStreaming = (ToggleButton) findViewById(R.id.playPauseButton);
-        //mediaPlayer = MediaPlayer.create(this, R.raw.audio);
+
+    @Override
+    public void onCreate() {
         mediaPlayer = new MediaPlayer();
 
     }
+
     @Override
     public int onStartCommand(Intent i, int flags, int idArranque) {
+        try {
 
-        Bundle bundle = i.getExtras();
-        String URLAudio = bundle.getString("URLAudio");
-        String idEmisora = bundle.getString("idEmisora");
-        final Uri audio = Uri.parse(URLAudio);
-        startPlaying(audio);
-        NotificationCompat.Builder notific = new NotificationCompat.Builder(this) .setContentTitle("Creando Servicio de Música") .setSmallIcon(R.mipmap.ic_launcher) .setContentText("información adicional");
-        PendingIntent intencionPendiente = PendingIntent.getActivity( this, 0, new Intent(this, MainActivity.class), 0);
-        notific.setContentIntent(intencionPendiente);
+            Bundle bundle = i.getExtras();
+            String URLAudio = bundle.getString("URLAudio");
+            String idEmisora = bundle.getString("idEmisora");
+            final Uri audio = Uri.parse(URLAudio);
+            startPlaying(audio);
+            NotificationCompat.Builder notific = new NotificationCompat.Builder(this).setContentTitle("Creando Servicio de Música").setSmallIcon(R.mipmap.ic_launcher).setContentText("información adicional");
+            PendingIntent intencionPendiente = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+            notific.setContentIntent(intencionPendiente);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(ID_NOTIFICACION_CREAR, notific
-                /*.setStyle(new Notification.MediaStyle()
-                        .setShowActionsInCompactView(new int[]{playPauseButtonPosition})  // show only play/pause in compact view
-                        .setMediaSession(mSessionToken))*/
-                .setLargeIcon(bitmap1)
-                .setWhen(System.currentTimeMillis() + 1000 * 60 * 60)
-                .setContentTitle(idEmisora)
-                .setTicker("Texto en barra de estado")
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(ID_NOTIFICACION_CREAR, notific
+                    .setLargeIcon(bitmap1)
+                    .setWhen(System.currentTimeMillis() + 1000 * 60 * 60)
+                    .setContentTitle(idEmisora)
+                    .setTicker("Texto en barra de estado")
 
-                .build());
+                    .build());
 
-        Toast.makeText(this,"Servicio arrancado "+ idArranque, Toast.LENGTH_SHORT).show();
-        //mediaPlayer.start();
-        return START_STICKY;
+
+            //mediaPlayer.start();
+            return START_STICKY;
+
+        } catch (Exception ex) {
+            return Service.START_NOT_STICKY;
+        }
     }
-    @Override public void onDestroy() {
-        Toast.makeText(this,"Servicio detenido", Toast.LENGTH_SHORT).show();
-        stopPlaying();
-        /*NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(ID_NOTIFICACION_CREAR);*/
+
+    @Override
+    public void onDestroy() {
+        try {
+            stopPlaying();
+        } catch (Exception ex) {
+
+        }
+
     }
-    @Override public IBinder onBind(Intent intencion) {
+
+    @Override
+    public IBinder onBind(Intent intencion) {
         return null;
     }
 
@@ -84,11 +92,16 @@ public class ServicioMusica extends Service implements MediaPlayer.OnPreparedLis
     //MEDIAPLAYER
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
-        mediaController.setMediaPlayer(this);
-        //mediaController.setAnchorView(getView().findViewById(R.id.fragment_detalle));
-        mediaController.setEnabled(true);
-        mediaController.show();
+       try {
+           mp.start();
+           mediaController.setMediaPlayer(this);
+           mediaController.setEnabled(true);
+           mediaController.show();
+       }
+       catch (Exception ex)
+       {
+
+       }
     }
 
     @Override
@@ -167,8 +180,6 @@ public class ServicioMusica extends Service implements MediaPlayer.OnPreparedLis
                 public void onPrepared(MediaPlayer mp) {
 
                     mediaPlayer.start();
-                    //Cambio el botón a pause
-                    //buttonStreaming.setEnabled(true);
                 }
             });
 
@@ -183,14 +194,17 @@ public class ServicioMusica extends Service implements MediaPlayer.OnPreparedLis
     }
 
     public void stopPlaying() {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
+        try {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+            }
+        }
+        catch (Exception ex)
+        {
 
-            //buttonStreaming.setEnabled(true);
         }
     }
-
 
 
 }

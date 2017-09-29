@@ -1,7 +1,5 @@
 package com.example.proyectofinalalonso;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,59 +15,79 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import butterknife.ButterKnife;
 
 import static com.example.proyectofinalalonso.Aplicacion.PLAY_SERVICES_RESOLUTION_REQUEST;
-import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.example.proyectofinalalonso.Aplicacion.getAppContext;
 
 /**
- * Created by Alonso on 02/09/2017.
+ * Created by Alonso on 20/08/2017.
  */
 
-public class ListadoRadiosActivity extends Fragment {
+public class ListadoPodcastsPorRadio extends Fragment implements RecyclerViewClickListener{
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter adapter;
     private Query query;
+    ArrayList<String> listado;
+    Object podcast1 = new Object();
+    HashMap<String, Object> podcast2 = new HashMap<String, Object>();
+    HashMap<String, Object> podcast3 = new HashMap<String, Object>();
+    HashMap<String, Object> podcast4 = new HashMap<String, Object>();
+    Integer cont = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_listado_radios, container, false);
-        Bundle bundle = this.getArguments();
+    public void recyclerViewListClicked(View v, int position){
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.activity_listado_radios_con_podcast, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new GridLayoutManager(getApplicationContext(),1);
-        String textoGenero = bundle.getString("textoGenero");
+        layoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 1); //2 columnas
+        Bundle bundle = this.getArguments();
+        final String idEmisora = bundle.getString("idEmisora");
+        final String imagen = bundle.getString("imagen");
+        String URLAudio = bundle.getString("URLAudio");
+        String rss = "";
+        final String genero = bundle.getString("genero");
+        Integer i = 0;
+        HashMap<String, Object> listadoPodcasts = (HashMap<String, Object>) bundle.getSerializable("podcast");
+        for (Object key : listadoPodcasts.keySet()) {
+
+            podcast1 = listadoPodcasts.get(key);
+            cont++;
+        }
+
+        listado = new ArrayList<String>();
         if (!comprobarGooglePlayServices()) {
             Toast.makeText(getActivity(), "Error, Google Play Services no está instalado o no es válido", Toast.LENGTH_LONG);
         }
         ButterKnife.bind(getActivity());
-        Aplicacion app = new Aplicacion(textoGenero);
-        //app = (Aplicacion) getApplicationContext();
-        app.setGenero(textoGenero);
-        query = app.obtenerReferenciaDatabaseEmisoras();
+        Aplicacion app = (Aplicacion) getActivity().getApplicationContext();
+        //Obtengo los elementos de la referencia de la base de datos
+        query = app.obtenerReferenciaEmisoras();
         databaseReference = app.getItemsRadioReference();
-        AdaptadorListadoRadios adapter = new AdaptadorListadoRadios(R.layout.content_listado_radios,getApplicationContext(), databaseReference.orderByChild("Categoria").equalTo(textoGenero));
+        //Se los paso al adaptador para que los muestre
+        AdaptadorPodcastsPorRadio adapter = new AdaptadorPodcastsPorRadio(getAppContext(), podcast1, this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+
         return rootView;
-
     }
 
-    @Override
-    public void onResume() {
-        RadioActivity detalleFragment = (RadioActivity) getFragmentManager().findFragmentById(R.id.fragment_detalle);
-        if (detalleFragment == null) {
-            ((MainActivity) getActivity()).mostrarElementos(false);
-        }
-        super.onResume();
-    }
+
     private boolean comprobarGooglePlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -82,5 +100,4 @@ public class ListadoRadiosActivity extends Fragment {
         }
         return true;
     }
-
 }

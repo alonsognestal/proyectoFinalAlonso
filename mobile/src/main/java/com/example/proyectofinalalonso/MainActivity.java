@@ -1,18 +1,12 @@
 package com.example.proyectofinalalonso;
 
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
@@ -24,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.GravityCompat;
 
 
@@ -36,7 +29,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -59,9 +51,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import static android.R.attr.description;
-import static android.R.id.tabs;
 
 /**
  * Created by Alonso on 01/09/2017.
@@ -98,133 +87,140 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        setContentView(R.layout.navigation_view);
 
-        CastContext castContext = CastContext.getSharedInstance(this);
-        CastMediaOptions mediaOptions = new CastMediaOptions.Builder()
-                .setNotificationOptions(null)
-                .build();
-        // Añado toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+            FacebookSdk.sdkInitialize(getApplicationContext());
+            setContentView(R.layout.navigation_view);
 
-        //Obtengo la referencia del FrameLayout donde voy a meter cada uno de los 3 fragmentos y del tablayout
-        simpleFrameLayout = (FrameLayout) findViewById(R.id.simpleFrameLayout);
-        tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
+            CastContext castContext = CastContext.getSharedInstance(this);
+            CastMediaOptions mediaOptions = new CastMediaOptions.Builder()
+                    .setNotificationOptions(null)
+                    .build();
+            // Añado toolbar
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
-        //Añado las 3 pestañas que me interesan
-        final TabLayout.Tab firstTab = tabLayout.newTab();
-        firstTab.setText("NOTICIAS");
-        tabLayout.addTab(firstTab);
+            //Obtengo la referencia del FrameLayout donde voy a meter cada uno de los 3 fragmentos y del tablayout
+            simpleFrameLayout = (FrameLayout) findViewById(R.id.simpleFrameLayout);
+            tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
 
-        TabLayout.Tab secondTab = tabLayout.newTab();
-        secondTab.setText("PODCAST");
-        tabLayout.addTab(secondTab);
+            //Añado las 3 pestañas que me interesan
+            final TabLayout.Tab firstTab = tabLayout.newTab();
+            firstTab.setText("NOTICIAS");
+            tabLayout.addTab(firstTab);
 
-        TabLayout.Tab thirdTab = tabLayout.newTab();
-        thirdTab.setText("RADIO EN DIRECTO");
-        tabLayout.addTab(thirdTab);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+            TabLayout.Tab secondTab = tabLayout.newTab();
+            secondTab.setText("PODCAST");
+            tabLayout.addTab(secondTab);
 
-        // Navigation Drawer
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
+            TabLayout.Tab thirdTab = tabLayout.newTab();
+            thirdTab.setText("RADIO EN DIRECTO");
+            tabLayout.addTab(thirdTab);
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
             }
-        });
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
-        // Nombre de usuario
-        SharedPreferences pref = getSharedPreferences(
-                "com.example.proyectofinalalonso", MODE_PRIVATE);
-        String name = pref.getString("name", null);
-        View headerLayout = navigationView.getHeaderView(0);
-        TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
-        txtName.setText(String.format(getString(R.string.welcome_message), name));
+            // Navigation Drawer
+            drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
+            drawer.setDrawerListener(toggle);
+            toggle.syncState();
+            toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+
+            // Nombre de usuario
+            SharedPreferences pref = getSharedPreferences(
+                    "com.example.proyectofinalalonso", MODE_PRIVATE);
+            String name = pref.getString("name", null);
+            View headerLayout = navigationView.getHeaderView(0);
+            TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
+            txtName.setText(String.format(getString(R.string.welcome_message), name));
 
 // perform setOnTabSelectedListener event on TabLayout
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                //Obtengo la posición de la pestaña pulsada y reemplazo el fragment con el que yo quiera
-                Fragment fragment = null;
-                switch (tab.getPosition()) {
-                    case 0:
-                        fragment = new NewsActivity();
-                        break;
-                    case 1:
-                        fragment = new PodcastActivity();
-                        break;
-                    case 2:
-                        fragment = new RadioActivity();
-                        break;
+            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    //Obtengo la posición de la pestaña pulsada y reemplazo el fragment con el que yo quiera
+                    Fragment fragment = null;
+                    switch (tab.getPosition()) {
+                        case 0:
+                            fragment = new NewsFragment();
+                            break;
+                        case 1:
+                            fragment = new PodcastFragment();
+                            break;
+                        case 2:
+                            fragment = new RadioFragment();
+                            break;
+                    }
+                    FragmentManager fm = getSupportFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+                    ft.hide(getSupportFragmentManager().findFragmentById(R.id.simpleFrameLayout));
+                    ft.add(R.id.simpleFrameLayout, fragment);
+                    ft.addToBackStack("pila");
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    ft.commit();
                 }
-                FragmentManager fm = getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.hide(getSupportFragmentManager().findFragmentById(R.id.simpleFrameLayout));
-                ft.add(R.id.simpleFrameLayout, fragment);
-                ft.addToBackStack("pila");
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                ft.commit();
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
 
-            }
+                }
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
 
-            }
-        });
+                }
+            });
 //Añadimos código para configurar la notificación personalizada
-        remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notification);
-        remoteViews.setImageViewResource(R.id.reproducir, android.R.drawable.ic_media_play);
-        remoteViews.setImageViewResource(R.id.imagen, R.mipmap.ic_launcher);
-        remoteViews.setTextViewText(R.id.titulo, "Notificatión personalizada");
-        remoteViews.setTextColor(R.id.titulo, Color.BLACK);
-        remoteViews.setTextViewText(R.id.texto, "Texto de la notificación.");
-        remoteViews.setTextColor(R.id.texto, Color.BLACK);
+            remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notification);
+            remoteViews.setImageViewResource(R.id.reproducir, android.R.drawable.ic_media_play);
+            remoteViews.setImageViewResource(R.id.imagen, R.mipmap.ic_launcher);
+            remoteViews.setTextViewText(R.id.titulo, "Notificatión personalizada");
+            remoteViews.setTextColor(R.id.titulo, Color.BLACK);
+            remoteViews.setTextViewText(R.id.texto, "Texto de la notificación.");
+            remoteViews.setTextColor(R.id.texto, Color.BLACK);
 
-        Intent intent = new Intent();
-        intent.setAction(ACCION_DEMO);
-        intent.putExtra(EXTRA_PARAM, "otro parámetro");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViews.setOnClickPendingIntent(R.id.reproducir, pendingIntent);
+            Intent intent = new Intent();
+            intent.setAction(ACCION_DEMO);
+            intent.putExtra(EXTRA_PARAM, "otro parámetro");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            remoteViews.setOnClickPendingIntent(R.id.reproducir, pendingIntent);
 
-        // Foto de usuario
-        FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
-        Uri urlImagen = usuario.getPhotoUrl();
-        if (urlImagen != null) {
-            NetworkImageView fotoUsuario = (NetworkImageView)
-                    headerLayout.findViewById(R.id.imageView);
-            Aplicacion aplicacion = (Aplicacion) getApplicationContext();
-            fotoUsuario.setImageUrl(urlImagen.toString(),
-                    aplicacion.getLectorImagenes());
+            // Foto de usuario
+            FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+            Uri urlImagen = usuario.getPhotoUrl();
+            if (urlImagen != null) {
+                NetworkImageView fotoUsuario = (NetworkImageView)
+                        headerLayout.findViewById(R.id.imageView);
+                Aplicacion aplicacion = (Aplicacion) getApplicationContext();
+                fotoUsuario.setImageUrl(urlImagen.toString(),
+                        aplicacion.getLectorImagenes());
+            }
+            Fragment fragment = null;
+
+            fragment = new NewsFragment();
+
+
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.simpleFrameLayout, fragment);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+            mSessionManager = castContext.getSessionManager();
         }
-        Fragment fragment = null;
+        catch (Exception ex)
+        {
 
-        fragment = new NewsActivity();
-
-
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.simpleFrameLayout, fragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
-        mSessionManager = castContext.getSessionManager();
+        }
     }
 
     //region Barra de acciones
@@ -232,15 +228,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        /*if( getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ) {
-            getSupportMediaController().getTransportControls().pause();
-        }*/
-
-        //mMediaBrowserCompat.disconnect();
     }
 
     public void mostrarElementos(boolean mostrar) {
-//        appBarLayout.setExpanded(mostrar);
         toggle.setDrawerIndicatorEnabled(mostrar);
         if (mostrar) {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -280,31 +270,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        try {
+            int id = item.getItemId();
 
-
-        if (id == R.id.nav_signout) {
-            AuthUI.getInstance().signOut(this)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            SharedPreferences pref = getSharedPreferences(
-                                    "com.example.proyectofinalalonso", MODE_PRIVATE);
-                            pref.edit().remove("provider").commit();
-                            pref.edit().remove("email").commit();
-                            pref.edit().remove("name").commit();
-                            Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    | Intent.FLAG_ACTIVITY_NEW_TASK
-                                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(i);
-                            finish();
-                        }
-                    });
+            if (id == R.id.nav_signout) {
+                AuthUI.getInstance().signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                SharedPreferences pref = getSharedPreferences(
+                                        "com.example.proyectofinalalonso", MODE_PRIVATE);
+                                pref.edit().remove("provider").commit();
+                                pref.edit().remove("email").commit();
+                                pref.edit().remove("name").commit();
+                                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(i);
+                                finish();
+                            }
+                        });
+            }
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     @Override
@@ -370,20 +365,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
-        mostrarElementos(true);
-        mSessionManager.addSessionManagerListener(mSessionManagerListener);
-        mCastSession = mSessionManager.getCurrentCastSession();
-        Aplicacion.setmCastSession(mCastSession);
-        Aplicacion.setmSessionManager(mSessionManager);
+        try {
+            mostrarElementos(true);
+            mSessionManager.addSessionManagerListener(mSessionManagerListener);
+            mCastSession = mSessionManager.getCurrentCastSession();
+            Aplicacion.setmCastSession(mCastSession);
+            Aplicacion.setmSessionManager(mSessionManager);
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        try{
+
         mSessionManager.removeSessionManagerListener(mSessionManagerListener);
         mCastSession = null;
         Aplicacion.setmCastSession(mCastSession);
         Aplicacion.setmSessionManager(mSessionManager);
+
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
 }

@@ -164,18 +164,10 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
             e.printStackTrace();
         }
 
-
         outer.add(links);
-
         outer.add(descriptions);
-
         outer.add(ownImages);
-
         outer.add(durations);
-
-       /* outer.add(titles);
-
-        outer.add(images);*/
 
         Aplicacion.haAcabadoHiloSecundario = true;
         Aplicacion.listadoGlobalPodcasts = outer;
@@ -184,15 +176,6 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
 
 
 
-    @Override
-    protected void onPostExecute(ArrayList<ArrayList<String>> outer) {
-        //Recoger todos los arrays una vez finalizado tudo el proceso
-
-        /*if (dialog.isShowing()) {
-            dialog.dismiss();*/
-            //delegate.processFinish(outer);
-        //}
-    }
 
     public InputStream getInputStream(URL url) {
         try {
@@ -202,17 +185,5 @@ public class ObtenerPodcast extends AsyncTask <Void, Integer, ArrayList<ArrayLis
         }
     }
 
-    public String removeHtmlTags(String inStr) {
-        int index = 0;
-        int index2 = 0;
-        while (index != -1) {
-            index = inStr.indexOf("<");
-            index2 = inStr.indexOf(">", index);
-            if (index != -1 && index2 != -1) {
-                inStr = inStr.substring(0, index).concat(inStr.substring(index2 + 1, inStr.length()));
-            }
-        }
-        return inStr;
-    }
 
 }

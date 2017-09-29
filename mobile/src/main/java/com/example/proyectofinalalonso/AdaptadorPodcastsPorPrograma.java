@@ -56,10 +56,6 @@ public class AdaptadorPodcastsPorPrograma extends RecyclerView.Adapter<Adaptador
             holder.descripcion.setText(links.get(1));
             Glide.with(contexto).load(links.get(2)).into(holder.imagen);
         }
-
-       /* Libro libro = vectorLibros.elementAt(posicion);
-        holder.portada.setImageResource(libro.recursoImagen);
-        holder.titulo.setText(libro.titulo);*/
     }
     public static class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView imagen;
@@ -80,18 +76,20 @@ public class AdaptadorPodcastsPorPrograma extends RecyclerView.Adapter<Adaptador
         @Override
         public void onClick(View v)
         {
+            //TODO: INCOMPLETO
             itemListener.recyclerViewListClicked(v, this.getPosition());
+            (( ArrayList<ArrayList<String>>)((PodcastsPorPrograma)itemListener).listado).get(0);
            /* Bundle bundle = new Bundle();
             String imagen = ((HashMap) ((PodcastsPorPrograma) itemListener).listado).get("imagen").toString();
             String rss = ((HashMap) ((PodcastsPorPrograma) itemListener).podcast1).get("rss").toString();
             String idPodcast = ((HashMap) ((PodcastsPorPrograma) itemListener).podcast1).get("idPodcast").toString();
 */
             Context context = Aplicacion.getAppContext();
-
+            //(( ArrayList<ArrayList<String>>)((PodcastsPorPrograma)itemListener).listado);
             /*bundle.putString("imagen", imagen);
             bundle.putString("rss", rss);
             bundle.putString("idPodcast", idPodcast);*/
-            Intent intent = new Intent(context, PodcastsPorPrograma.class);
+            Intent intent = new Intent(context, DetallePodcastActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             /*intent.putExtra("imagen", imagen);
             intent.putExtra("rss", rss);
