@@ -79,7 +79,7 @@ public class DetallesEmisoraRadioFragment extends Fragment implements View.OnTou
 
         final SessionManager mSessionManager = Aplicacion.getmSessionManager();
         final CastSession mCastSession = Aplicacion.getmCastSession();
-
+        remoteMediaClient = mCastSession.getRemoteMediaClient();
         txtView = (TextView) rootView.findViewById(R.id.txtTitulo);
         imgView = (ImageView) rootView.findViewById(R.id.imgLogo);
         txtView.setText(idEmisora);
